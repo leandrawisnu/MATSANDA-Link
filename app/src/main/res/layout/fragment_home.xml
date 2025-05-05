@@ -1,14 +1,96 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout android:background="@color/white"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".HomeFragment">
+    tools:context=".HomeFragment"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <View
+    <!-- Sticky Header -->
+    <LinearLayout
+        android:id="@+id/header"
+        android:orientation="horizontal"
+        android:layout_marginTop="25dp"
         android:layout_width="match_parent"
-        android:layout_height="?android:attr/actionBarSize"
-        android:background="@color/GreenGrass"/>
+        android:layout_height="100dp"
+        android:background="@android:color/white">
 
-</LinearLayout>
+        <!-- Logo Row -->
+        <LinearLayout
+            android:layout_gravity="center"
+            android:paddingLeft="25dp"
+            android:paddingRight="25dp"
+            android:id="@+id/wrapper_logo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_marginBottom="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/link_by_matsanda_logotype_green" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"/>
+
+                <ImageView
+                    android:layout_width="40dp"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/logo"
+                    android:layout_gravity="end"/>
+            </LinearLayout>
+
+            <!-- Search Input -->
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawableStart="@drawable/search"
+                android:padding="10dp"
+                android:hint="Search"
+                android:textColor="@color/link_green"
+                android:fontFamily="@font/poppins"
+                android:textSize="12sp"
+                android:background="@drawable/search_background"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Scrollable Content -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="125dp"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:paddingTop="25dp"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:paddingLeft="25dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Berita Terbaru"
+                android:textColor="@color/link_green"
+                android:fontFamily="@font/poppins_medium"
+                android:textSize="20dp"
+                android:layout_marginBottom="10dp"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:paddingLeft="10dp"
+                android:id="@+id/headline_rv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+    </ScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

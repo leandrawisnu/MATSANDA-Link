@@ -1,5 +1,9 @@
 <resources>
-    <string name="app_name">MATSANDA+</string>
+    <string name="app_name">Link by MATSANDA</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="byMATSANDA">by MATSANDA</string>
+    <string name="logo_description">Logo Link by MATSANDA</string>
+    <string name="link">Link</string>
+    <string name="baca"><u>Baca</u></string>
 </resources>

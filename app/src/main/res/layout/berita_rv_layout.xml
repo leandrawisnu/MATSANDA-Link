@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="300dp"
+    android:layout_height="wrap_content"
+    android:padding="15dp">
+
+    <ImageView
+        android:id="@+id/berita_headline_image"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:scaleType="centerCrop"
+        android:layout_marginBottom="10dp"/>
+
+    <TextView
+        android:id="@+id/judul_headline_TV"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit..."
+        android:textColor="@color/black"
+        android:textSize="16dp"
+        android:fontFamily="@font/poppins"
+        android:paddingBottom="10dp"/>
+
+    <TextView
+        android:id="@+id/date_headline_TV"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Senin, 21 April 2025"
+        android:layout_marginBottom="10dp"
+        android:fontFamily="@font/poppins"
+        android:textSize="14dp"
+        android:textColor="@color/link_grey"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="14dp"
+        android:fontFamily="@font/poppins"
+        android:text="@string/baca"/>
+
+</LinearLayout>
