@@ -1,17 +1,23 @@
 package com.example.matsandaplus
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.graphics.BitmapFactory
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
+import android.view.RoundedCorner
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -21,6 +27,8 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
+import java.sql.Date
+import java.sql.Time
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -59,64 +67,64 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        refresh()
+        fetchHeadlineNews(view.context)
+
+        val refreshBtn : ImageButton = view.findViewById(R.id.refreshButton)
+        refreshBtn.setOnClickListener {
+            fetchHeadlineNews(view.context)
+        }
     }
 
-    fun refresh() {
+    fun fetchHeadlineNews(context: Context) {
         val recyclerView = view?.findViewById<RecyclerView>(R.id.headline_rv)
+        val headlineProgressbar = view?.findViewById<ProgressBar>(R.id.headline_progress)
+        recyclerView?.layoutManager = LinearLayoutManager(view?.context, LinearLayoutManager.HORIZONTAL, false)
 
-        CoroutineScope(Dispatchers.IO).launch {
-            val connection = URL("http://tour-occupational.gl.at.ply.gg:32499/api/News").openConnection() as HttpURLConnection
-            connection.requestMethod = "GET"
+        // Jalankan coroutine di lifecycle-aware scope kalau bisa (misal lifecycleScope)
+        CoroutineScope(Dispatchers.Main).launch {
+            headlineProgressbar?.visibility = View.VISIBLE
+            recyclerView?.visibility = View.GONE
 
-            val whole = connection.inputStream.bufferedReader().readText()
-            val response = JSONObject(whole)
-            val data = response.getJSONArray("data")
+            val newsArray = withContext(Dispatchers.IO) {
+                try {
+                    val url = URL("http://tour-occupational.gl.at.ply.gg:32499/api/News")
+                    val connection = url.openConnection() as HttpURLConnection
+                    connection.connectTimeout = 5000
+                    connection.readTimeout = 5000
+                    connection.requestMethod = "GET"
 
-            withContext(Dispatchers.Main) {
-                recyclerView?.layoutManager = LinearLayoutManager(view?.context, LinearLayoutManager.HORIZONTAL, false)
-                recyclerView?.adapter = AdapterRV(data)
+                    val responseCode = connection.responseCode
+
+                    if (responseCode != HttpURLConnection.HTTP_OK) throw Exception()
+
+                    val response = connection.inputStream.bufferedReader().readText()
+                    val jsonData = JSONObject(response).getJSONArray("data")
+                    jsonData
+                } catch (e: Exception) {
+                    // Kalo gagal, return dummy data offline
+                    buildOfflineJsonArray()
+                }
             }
+
+            recyclerView?.adapter = AdapterRV(newsArray, R.layout.berita_rv_layout)
+            headlineProgressbar?.visibility = View.GONE
+            recyclerView?.visibility = View.VISIBLE
         }
     }
 
-    class AdapterRV(private val data : JSONArray) : RecyclerView.Adapter<AdapterRV.Holder>(){
-        class Holder(private val view: View) : RecyclerView.ViewHolder(view.rootView) {
-            @SuppressLint("SetTextI18n")
-            fun bind (item: JSONObject) {
+    private fun buildOfflineJsonArray(): JSONArray {
+        val currentDate = LocalDate.now()
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+        val formattedDate = currentDate.format(formatter)
 
-                val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy", Locale("id"))
-                val judul = item.getString("title")
-
-                if(judul.length>55) {
-                    view.findViewById<TextView>(R.id.judul_headline_TV).text = judul.substring(0, 54) + "..."
-                } else {
-                    view.findViewById<TextView>(R.id.judul_headline_TV).text = judul
+        return JSONArray().apply {
+            put(
+                JSONObject().apply {
+                    put("title", "You're Offline!")
+                    put("createdAt", formattedDate)
+                    put("image", "kosong")
                 }
-
-                view.findViewById<TextView>(R.id.date_headline_TV).text = formatter.format(LocalDate.parse(item.getString("createdAt")))
-                val gambar = view.findViewById<ImageView>(R.id.berita_headline_image)
-
-                Glide.with(view.context)
-                    .load(item.getString("image"))
-                    .into(gambar)
-            }
-        }
-
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
-            val inflater =
-                LayoutInflater.from(parent.context).inflate(R.layout.berita_rv_layout, parent, false)
-            val view = Holder(inflater)
-            return view
-        }
-
-        override fun getItemCount(): Int {
-            return data.length()
-        }
-
-        override fun onBindViewHolder(holder: Holder, position: Int) {
-            val item = data.getJSONObject(position)
-            holder.bind(item)
+            )
         }
     }
 

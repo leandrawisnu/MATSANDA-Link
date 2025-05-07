@@ -1,33 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="300dp"
     android:layout_height="wrap_content"
-    android:padding="15dp">
+    android:padding="15dp"
+    android:layout_marginStart="8dp"
+    android:layout_marginEnd="8dp"
+    android:background="@drawable/headline_bg">
 
-    <ImageView
+    <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/berita_headline_image"
+        android:src="@drawable/_553039945540_screenshot_2019_03_20_09_24_22_resized"
         android:layout_width="match_parent"
-        android:layout_height="150dp"
+        android:layout_height="130dp"
         android:scaleType="centerCrop"
-        android:layout_marginBottom="10dp"/>
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/headline_image_corners"
+        app:shapeAppearanceOverlay="@style/RoundedImageView"/>
 
     <TextView
         android:id="@+id/judul_headline_TV"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit..."
+        android:text="You're Offline!"
         android:textColor="@color/black"
         android:textSize="16dp"
         android:fontFamily="@font/poppins"
-        android:paddingBottom="10dp"/>
+        android:paddingBottom="5dp"/>
 
     <TextView
         android:id="@+id/date_headline_TV"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Senin, 21 April 2025"
-        android:layout_marginBottom="10dp"
+        android:layout_marginBottom="5dp"
         android:fontFamily="@font/poppins"
         android:textSize="14dp"
         android:textColor="@color/link_grey"/>
@@ -37,6 +44,7 @@
         android:layout_height="wrap_content"
         android:textSize="14dp"
         android:fontFamily="@font/poppins"
-        android:text="@string/baca"/>
+        android:text="@string/baca"
+        android:textColor="@color/black"/>
 
 </LinearLayout>

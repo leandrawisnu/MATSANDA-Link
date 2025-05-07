@@ -6,4 +6,9 @@
     <string name="logo_description">Logo Link by MATSANDA</string>
     <string name="link">Link</string>
     <string name="baca"><u>Baca</u></string>
+    <string name="berita_terbaru">Berita Terbaru</string>
+    <string name="podcast">Podcast</string>
+    <string name="video">Video</string>
+    <string name="berita">Berita</string>
+    <string name="cari">Cari</string>
 </resources>

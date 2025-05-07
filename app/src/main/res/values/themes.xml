@@ -1,8 +1,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Base.Theme.MATSANDA" parent="Theme.Material3.DynamicColors.Light.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+    <style name="Base.Theme.MATSANDA" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="colorPrimary">@color/link_green</item>
     </style>
 
     <style name="Theme.MATSANDA" parent="Base.Theme.MATSANDA" />

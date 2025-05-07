@@ -7,6 +7,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 
 class MainActivity : AppCompatActivity() {
@@ -20,17 +21,25 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        val tpMenu: com.google.android.material.tabs.TabLayout = findViewById(R.id.tpMenu)
+        val tpMenu: TabLayout = findViewById(R.id.tpMenu)
         val vpMenu: androidx.viewpager2.widget.ViewPager2 = findViewById(R.id.vpMenu)
 
-        val fragmentList = listOf(HomeFragment(), NewsFragment(), VideosFragment())
-        val nameList = listOf("Home", "News", "Videos")
-        val iconMap = mapOf(
-            "Home" to R.drawable.baseline_home_24,
-            "News" to R.drawable.baseline_newspaper_24,
-            "Videos" to R.drawable.baseline_personal_video_24
+        val fragmentList = listOf(HomeFragment(), NewsFragment(), VideosFragment(), SavedFragment())
+        val nameList = listOf("Beranda", "Berita", "Media", "Tersimpan")
+        val iconMapNormal = mapOf(
+            "Beranda" to R.drawable.beranda,
+            "Berita" to R.drawable.berita,
+            "Media" to R.drawable.media,
+            "Tersimpan" to R.drawable.saved
+        )
+        val iconMapActive = mapOf(
+            "Beranda" to R.drawable.beranda_active,
+            "Berita" to R.drawable.berita_active,
+            "Media" to R.drawable.media_active,
+            "Tersimpan" to R.drawable.saved_active
         )
 
+        vpMenu.isUserInputEnabled = false
         vpMenu.adapter = object : FragmentStateAdapter(supportFragmentManager, lifecycle) {
             override fun getItemCount(): Int {
                 return fragmentList.size
@@ -41,12 +50,29 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        tpMenu.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab) {
+                val name = tab.text.toString()
+                tab.setIcon(iconMapActive[name]!!)
+            }
+
+            override fun onTabUnselected(tab: TabLayout.Tab) {
+                val name = tab.text.toString()
+                tab.setIcon(iconMapNormal[name]!!)
+            }
+
+            override fun onTabReselected(tab: TabLayout.Tab) {
+                // Optional: bisa kosong
+            }
+        })
+
         TabLayoutMediator(tpMenu, vpMenu) { tab, position ->
             val name = nameList[position]
-            val icon = iconMap[name]
+            val icon = iconMapNormal[name]
             if (icon != null) {
                 tab.setIcon(icon)
             }
+            tab.text = nameList[position]
         }.attach()
     }
 }
