@@ -41,6 +41,12 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"/>
+
+                <Button
+                    android:id="@+id/testBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="test"/>
             </LinearLayout>
 
             <EditText
@@ -162,6 +168,15 @@
                     style="@style/CustomChoiceChip"
                     android:text="@string/podcast" />
             </com.google.android.material.chip.ChipGroup>
+
+            <ProgressBar
+                android:id="@+id/media_progress"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_gravity="center_horizontal"
+                android:indeterminateTint="@color/link_green"
+                android:indeterminateTintMode="src_in"
+                android:visibility="visible"/>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:minHeight="150dp"

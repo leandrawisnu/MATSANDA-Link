@@ -14,4 +14,9 @@
         <item name="android:textSize">16sp</item>
     </style>
 
+    <style name="regularText">
+        <item name="fontFamily">@font/poppins</item>
+        <item name="android:textSize">12dp</item>
+        <item name="android:textColor">@color/black</item>
+    </style>
 </resources>

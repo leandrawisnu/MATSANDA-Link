@@ -11,4 +11,6 @@
     <string name="video">Video</string>
     <string name="berita">Berita</string>
     <string name="cari">Cari</string>
+    <string name="Lorem_Ipsum">Lorem ipsum dolor sit amet, consectetur adipiscing elit...</string>
+    <string name="filler_date">Senin, 21 April 2025</string>
 </resources>

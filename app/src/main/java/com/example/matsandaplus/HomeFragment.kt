@@ -2,6 +2,7 @@ package com.example.matsandaplus
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.graphics.BitmapFactory
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -18,6 +19,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
+import com.google.android.material.chip.ChipGroup
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -67,35 +69,71 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        fetchHeadlineNews(view.context)
+        val chipGroup : ChipGroup = view.findViewById(R.id.chipGroup)
+        chipGroup.setOnCheckedChangeListener { group, checkedId ->
+            when (checkedId) {
+                R.id.chip_berita -> {
+                    fetchItems(view.context, "berita")
+                }
+                R.id.chip_video -> {
+                    fetchItems(view.context, "video")
+                }
+                R.id.chip_podcast -> {
+                    fetchItems(view.context, "podcast")
+                }
+            }
+        }
 
+        fetchItems(view.context, "headline")
+
+        val testBtn : Button = view.findViewById(R.id.testBtn)
         val refreshBtn : ImageButton = view.findViewById(R.id.refreshButton)
         refreshBtn.setOnClickListener {
-            fetchHeadlineNews(view.context)
+            fetchItems(view.context, "headline")
+        }
+        testBtn.setOnClickListener {
+            val intent = Intent(view.context, NewsDetail::class.java)
+            view.context.startActivity(intent)
         }
     }
 
-    fun fetchHeadlineNews(context: Context) {
-        val recyclerView = view?.findViewById<RecyclerView>(R.id.headline_rv)
-        val headlineProgressbar = view?.findViewById<ProgressBar>(R.id.headline_progress)
-        recyclerView?.layoutManager = LinearLayoutManager(view?.context, LinearLayoutManager.HORIZONTAL, false)
+    private fun fetchItems(context: Context, type : String) {
+        val recyclerView = when (type) {
+            "headline" -> view?.findViewById<RecyclerView>(R.id.headline_rv)
+            else -> view?.findViewById(R.id.home_media_rv)
+        }
+        val progressBar = when (type) {
+            "headline" -> view?.findViewById<ProgressBar>(R.id.headline_progress)
+            else -> view?.findViewById(R.id.media_progress)
+        }
+        val url = when (type) {
+            "headline" -> URL("http://tour-occupational.gl.at.ply.gg:32499/api/News")
+            "berita" -> URL("http://tour-occupational.gl.at.ply.gg:32499/api/News")
+            "video" -> URL("http://tour-occupational.gl.at.ply.gg:32499/api/Videos")
+            "podcast" -> URL("http://tour-occupational.gl.at.ply.gg:32499/api/podcasts")
+            else -> null
+        }
+        recyclerView?.layoutManager = when (type) {
+            "headline" -> LinearLayoutManager(view?.context, LinearLayoutManager.HORIZONTAL, false)
+            else -> LinearLayoutManager(view?.context, LinearLayoutManager.VERTICAL, false)
+        }
+        val layout : Int = when (type) {
+            "headline" -> R.layout.berita_rv_layout
+            else -> R.layout.home_media_rv_layout
+        }
 
-        // Jalankan coroutine di lifecycle-aware scope kalau bisa (misal lifecycleScope)
         CoroutineScope(Dispatchers.Main).launch {
-            headlineProgressbar?.visibility = View.VISIBLE
+            progressBar?.visibility = View.VISIBLE
             recyclerView?.visibility = View.GONE
 
-            val newsArray = withContext(Dispatchers.IO) {
+            val newsArray : JSONArray = withContext(Dispatchers.IO) {
                 try {
-                    val url = URL("http://tour-occupational.gl.at.ply.gg:32499/api/News")
-                    val connection = url.openConnection() as HttpURLConnection
+                    val connection = url?.openConnection() as HttpURLConnection
                     connection.connectTimeout = 5000
                     connection.readTimeout = 5000
                     connection.requestMethod = "GET"
 
-                    val responseCode = connection.responseCode
-
-                    if (responseCode != HttpURLConnection.HTTP_OK) throw Exception()
+                    if (connection.responseCode != HttpURLConnection.HTTP_OK) throw Exception()
 
                     val response = connection.inputStream.bufferedReader().readText()
                     val jsonData = JSONObject(response).getJSONArray("data")
@@ -106,8 +144,8 @@ class HomeFragment : Fragment() {
                 }
             }
 
-            recyclerView?.adapter = AdapterRV(newsArray, R.layout.berita_rv_layout)
-            headlineProgressbar?.visibility = View.GONE
+            recyclerView?.adapter = AdapterRV(newsArray, layout, type)
+            progressBar?.visibility = View.GONE
             recyclerView?.visibility = View.VISIBLE
         }
     }
@@ -123,6 +161,7 @@ class HomeFragment : Fragment() {
                     put("title", "You're Offline!")
                     put("createdAt", formattedDate)
                     put("image", "kosong")
+                    put("type", "dummy")
                 }
             )
         }
