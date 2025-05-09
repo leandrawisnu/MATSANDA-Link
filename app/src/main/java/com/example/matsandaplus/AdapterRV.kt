@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
@@ -47,6 +48,9 @@ class AdapterRV(private val data : JSONArray, var layout : Int, var typeRV : Str
                         else -> {
                             val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy", Locale("id"))
                             val judul = item.getString("title")
+                            val button = view.findViewById<ImageView>(R.id.home_media_rv_play)
+
+                            button.visibility = View.GONE
 
                             if(judul.length>55) {
                                 view.findViewById<TextView>(R.id.media_rv_judul).text = judul.substring(0, 54) + "..."

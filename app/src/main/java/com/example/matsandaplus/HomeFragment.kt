@@ -3,37 +3,32 @@ package com.example.matsandaplus
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.graphics.BitmapFactory
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
-import android.view.RoundedCorner
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.EditText
 import android.widget.ImageButton
-import android.widget.ImageView
 import android.widget.ProgressBar
-import android.widget.TextView
+import android.widget.SearchView
+import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.resource.bitmap.RoundedCorners
+import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
-import java.sql.Date
-import java.sql.Time
+import java.time.Duration
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import java.util.Locale
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -69,6 +64,31 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val searchBar : SearchView = view.findViewById(R.id.home_search_bar)
+        searchBar.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            @SuppressLint("ShowToast")
+            override fun onQueryTextSubmit(p0: String?): Boolean {
+                if (!p0?.isEmpty()!!) {
+                    val intent = Intent(view.context, SearchActivity::class.java)
+                    intent.putExtra("searchQuery", p0)
+                    startActivity(intent)
+                    return true
+                }
+                Toast.makeText(view.context, "Query Kosong!", Toast.LENGTH_SHORT).show()
+                return false
+            }
+
+            override fun onQueryTextChange(p0: String?): Boolean {
+                return true
+            }
+
+        })
+
+        val refreshLayout : androidx.swiperefreshlayout.widget.SwipeRefreshLayout = view.findViewById(R.id.home_refresh_layout)
+        refreshLayout.setOnRefreshListener {
+            refreshItems(view)
+        }
+
         val chipGroup : ChipGroup = view.findViewById(R.id.chipGroup)
         chipGroup.setOnCheckedChangeListener { group, checkedId ->
             when (checkedId) {
@@ -84,17 +104,11 @@ class HomeFragment : Fragment() {
             }
         }
 
-        fetchItems(view.context, "headline")
+        val homeMediaRV : RecyclerView = view.findViewById(R.id.home_media_rv)
+        homeMediaRV.isNestedScrollingEnabled = false
 
-        val testBtn : Button = view.findViewById(R.id.testBtn)
-        val refreshBtn : ImageButton = view.findViewById(R.id.refreshButton)
-        refreshBtn.setOnClickListener {
-            fetchItems(view.context, "headline")
-        }
-        testBtn.setOnClickListener {
-            val intent = Intent(view.context, NewsDetail::class.java)
-            view.context.startActivity(intent)
-        }
+        fetchItems(view.context, "headline")
+        fetchItems(view.context, "berita")
     }
 
     private fun fetchItems(context: Context, type : String) {
@@ -107,15 +121,20 @@ class HomeFragment : Fragment() {
             else -> view?.findViewById(R.id.media_progress)
         }
         val url = when (type) {
-            "headline" -> URL("http://tour-occupational.gl.at.ply.gg:32499/api/News")
+            "headline" -> URL("http://tour-occupational.gl.at.ply.gg:32499/api/News/Headlines")
             "berita" -> URL("http://tour-occupational.gl.at.ply.gg:32499/api/News")
             "video" -> URL("http://tour-occupational.gl.at.ply.gg:32499/api/Videos")
             "podcast" -> URL("http://tour-occupational.gl.at.ply.gg:32499/api/podcasts")
             else -> null
         }
         recyclerView?.layoutManager = when (type) {
-            "headline" -> LinearLayoutManager(view?.context, LinearLayoutManager.HORIZONTAL, false)
-            else -> LinearLayoutManager(view?.context, LinearLayoutManager.VERTICAL, false)
+            "headline" -> object : LinearLayoutManager(view?.context, LinearLayoutManager.HORIZONTAL, false) {
+            }
+            else -> object : LinearLayoutManager(view?.context, LinearLayoutManager.VERTICAL, false) {
+                override fun canScrollVertically(): Boolean {
+                    return false
+                }
+            }
         }
         val layout : Int = when (type) {
             "headline" -> R.layout.berita_rv_layout
@@ -148,6 +167,16 @@ class HomeFragment : Fragment() {
             progressBar?.visibility = View.GONE
             recyclerView?.visibility = View.VISIBLE
         }
+        val swipeRefreshLayout = view?.findViewById<androidx.swiperefreshlayout.widget.SwipeRefreshLayout>(R.id.home_refresh_layout)
+        swipeRefreshLayout?.isRefreshing = false
+    }
+
+    private fun refreshItems(view: View) {
+        val chipGroup : ChipGroup = view.findViewById(R.id.chipGroup)
+        val chip = chipGroup.findViewById<Chip>(chipGroup.checkedChipId)
+
+        fetchItems(view.context, "headline")
+        fetchItems(view.context, chip.text.toString())
     }
 
     private fun buildOfflineJsonArray(): JSONArray {

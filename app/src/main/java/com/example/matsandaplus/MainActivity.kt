@@ -52,12 +52,12 @@ class MainActivity : AppCompatActivity() {
 
         tpMenu.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab) {
-                val name = tab.text.toString()
+                val name = tab.tag.toString()
                 tab.setIcon(iconMapActive[name]!!)
             }
 
             override fun onTabUnselected(tab: TabLayout.Tab) {
-                val name = tab.text.toString()
+                val name = tab.tag.toString()
                 tab.setIcon(iconMapNormal[name]!!)
             }
 
@@ -72,7 +72,7 @@ class MainActivity : AppCompatActivity() {
             if (icon != null) {
                 tab.setIcon(icon)
             }
-            tab.text = nameList[position]
+            tab.tag = name
         }.attach()
     }
 }

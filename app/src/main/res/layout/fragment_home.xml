@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout android:background="@color/white"
+<LinearLayout android:background="@color/white"
+    android:orientation="vertical"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     tools:context=".HomeFragment"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
@@ -13,7 +14,8 @@
         android:orientation="horizontal"
         android:layout_marginTop="25dp"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
         android:background="@android:color/white">
 
         <!-- Logo Row -->
@@ -41,21 +43,15 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"/>
-
-                <Button
-                    android:id="@+id/testBtn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="test"/>
             </LinearLayout>
 
-            <EditText
+            <SearchView
+                android:id="@+id/home_search_bar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:drawableStart="@drawable/search"
                 android:drawablePadding="7dp"
-                android:padding="10dp"
-                android:hint="@string/cari"
+                android:queryHint="@string/cari"
                 android:textColor="@color/link_green"
                 android:fontFamily="@font/poppins"
                 android:textSize="12sp"
@@ -63,53 +59,101 @@
         </LinearLayout>
     </LinearLayout>
 
-    <!-- Scrollable Content -->
-    <ScrollView
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/home_refresh_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="125dp"
-        android:fillViewport="true">
+        android:layout_height="wrap_content">
 
-        <LinearLayout
-            android:paddingTop="25dp"
-            android:orientation="vertical"
+        <ScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
             <LinearLayout
-                android:paddingLeft="25dp"
-                android:paddingRight="25dp"
+                android:orientation="vertical"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="10dp">
+                android:layout_height="wrap_content">
 
-                <TextView
-                    android:layout_gravity="center"
-                    android:layout_width="0dp"
+                <LinearLayout
+                    android:paddingLeft="25dp"
+                    android:paddingRight="25dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/berita_terbaru"
-                    android:textColor="@color/link_green"
-                    android:fontFamily="@font/poppins_medium"
-                    android:textSize="20sp"
-                    android:layout_weight="1"/>
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="10dp">
 
-                <ImageButton
-                    android:id="@+id/refreshButton"
+                    <TextView
+                        android:layout_gravity="center"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:text="@string/berita_terbaru"
+                        android:textColor="@color/link_green"
+                        android:fontFamily="@font/poppins_medium"
+                        android:textSize="20sp"
+                        android:layout_weight="1"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="150dp"
+                    android:orientation="vertical">
+
+                    <ProgressBar
+                        android:id="@+id/headline_progress"
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        android:layout_gravity="center_horizontal"
+                        android:indeterminateTint="@color/link_green"
+                        android:indeterminateTintMode="src_in"
+                        android:visibility="visible"/>
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:visibility="gone"
+                        android:id="@+id/headline_rv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+                </LinearLayout>
+
+                <com.google.android.material.chip.ChipGroup
+                    android:layout_marginStart="15dp"
+                    android:id="@+id/chipGroup"
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:src="@drawable/refresh_button"
-                    android:background="@color/white"/>
-            </LinearLayout>
+                    android:layout_height="wrap_content"
+                    app:singleSelection="true"
+                    app:selectionRequired="true"
+                    android:layout_marginBottom="10dp">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="150dp"
-                android:orientation="vertical">
+                    <com.google.android.material.chip.Chip
+                        android:textColor="@color/chip_text"
+                        app:chipBackgroundColor="@color/chip_bg"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/chip_berita"
+                        style="@style/CustomChoiceChip"
+                        android:text="@string/berita"
+                        android:checked="true"/>
+
+                    <com.google.android.material.chip.Chip
+                        android:textColor="@color/chip_text"
+                        app:chipBackgroundColor="@color/chip_bg"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/chip_video"
+                        style="@style/CustomChoiceChip"
+                        android:text="@string/video"/>
+
+                    <com.google.android.material.chip.Chip
+                        android:textColor="@color/chip_text"
+                        app:chipBackgroundColor="@color/chip_bg"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/chip_podcast"
+                        style="@style/CustomChoiceChip"
+                        android:text="@string/podcast" />
+                </com.google.android.material.chip.ChipGroup>
 
                 <ProgressBar
-                    android:id="@+id/headline_progress"
+                    android:id="@+id/media_progress"
                     android:layout_width="60dp"
                     android:layout_height="60dp"
                     android:layout_gravity="center_horizontal"
@@ -117,72 +161,12 @@
                     android:indeterminateTintMode="src_in"
                     android:visibility="visible"/>
 
-                <ScrollView
-                    android:layout_marginBottom="10dp"
-                    android:fillViewport="true"
+                <androidx.recyclerview.widget.RecyclerView
+                    android:minHeight="150dp"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:visibility="gone"
-                        android:id="@+id/headline_rv"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
-                </ScrollView>
+                    android:layout_height="wrap_content"
+                    android:id="@+id/home_media_rv"/>
             </LinearLayout>
-
-            <com.google.android.material.chip.ChipGroup
-                android:layout_marginStart="15dp"
-                android:id="@+id/chipGroup"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:singleSelection="true"
-                app:selectionRequired="true"
-                android:layout_marginBottom="10dp">
-
-                <com.google.android.material.chip.Chip
-                    android:textColor="@color/chip_text"
-                    app:chipBackgroundColor="@color/chip_bg"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/chip_berita"
-                    style="@style/CustomChoiceChip"
-                    android:text="@string/berita"
-                    android:checked="true"/>
-
-                <com.google.android.material.chip.Chip
-                    android:textColor="@color/chip_text"
-                    app:chipBackgroundColor="@color/chip_bg"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/chip_video"
-                    style="@style/CustomChoiceChip"
-                    android:text="@string/video"/>
-
-                <com.google.android.material.chip.Chip
-                    android:textColor="@color/chip_text"
-                    app:chipBackgroundColor="@color/chip_bg"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/chip_podcast"
-                    style="@style/CustomChoiceChip"
-                    android:text="@string/podcast" />
-            </com.google.android.material.chip.ChipGroup>
-
-            <ProgressBar
-                android:id="@+id/media_progress"
-                android:layout_width="60dp"
-                android:layout_height="60dp"
-                android:layout_gravity="center_horizontal"
-                android:indeterminateTint="@color/link_green"
-                android:indeterminateTintMode="src_in"
-                android:visibility="visible"/>
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:minHeight="150dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/home_media_rv"/>
-        </LinearLayout>
-    </ScrollView>
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+        </ScrollView>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+</LinearLayout>
