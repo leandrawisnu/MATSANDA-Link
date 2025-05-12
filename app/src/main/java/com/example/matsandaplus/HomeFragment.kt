@@ -15,6 +15,7 @@ import android.widget.ProgressBar
 import android.widget.SearchView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.chip.Chip
@@ -94,13 +95,19 @@ class HomeFragment : Fragment() {
         chipGroup.setOnCheckedChangeListener { group, checkedId ->
             when (checkedId) {
                 R.id.chip_berita -> {
-                    fetchItems(view.context, "berita")
+                    CoroutineScope(Dispatchers.IO).launch {
+                        fetchItems(view.context, "berita")
+                    }
                 }
                 R.id.chip_video -> {
-                    fetchItems(view.context, "video")
+                    CoroutineScope(Dispatchers.IO).launch {
+                        fetchItems(view.context, "video")
+                    }
                 }
                 R.id.chip_podcast -> {
-                    fetchItems(view.context, "podcast")
+                    CoroutineScope(Dispatchers.IO).launch {
+                        fetchItems(view.context, "podcast")
+                    }
                 }
             }
         }
@@ -108,11 +115,14 @@ class HomeFragment : Fragment() {
         val homeMediaRV : RecyclerView = view.findViewById(R.id.home_media_rv)
         homeMediaRV.isNestedScrollingEnabled = false
 
-        fetchItems(view.context, "headline")
-        fetchItems(view.context, "berita")
+        CoroutineScope(Dispatchers.IO).launch {
+            val bH = fetchItems(view.context, "headline")
+            val bB = fetchItems(view.context, "berita")
+        }
     }
 
-    private fun fetchItems(context: Context, type : String) {
+    @SuppressLint("CutPasteId")
+    private suspend fun fetchItems(context: Context, type : String) : Boolean {
         val noResult = when (type) {
             "headline" -> view?.findViewById<TextView>(R.id.headline_no_results)
             else -> view?.findViewById(R.id.media_no_results)
@@ -129,8 +139,7 @@ class HomeFragment : Fragment() {
             "headline" -> URL("http://tour-occupational.gl.at.ply.gg:32499/api/News/Headlines")
             "berita" -> URL("http://tour-occupational.gl.at.ply.gg:32499/api/News")
             "video" -> URL("http://tour-occupational.gl.at.ply.gg:32499/api/Videos")
-            "podcast" -> URL("http://tour-occupational.gl.at.ply.gg:32499/api/podcasts")
-            else -> null
+            else -> URL("http://tour-occupational.gl.at.ply.gg:32499/api/podcasts")
         }
         recyclerView?.layoutManager = when (type) {
             "headline" -> object : LinearLayoutManager(view?.context, LinearLayoutManager.HORIZONTAL, false) {
@@ -146,64 +155,71 @@ class HomeFragment : Fragment() {
             else -> R.layout.home_media_rv_layout
         }
 
-        CoroutineScope(Dispatchers.Main).launch {
-            progressBar?.visibility = View.VISIBLE
-            recyclerView?.visibility = View.GONE
-
-            val newsArray : JSONArray = withContext(Dispatchers.IO) {
-                try {
-                    val connection = url?.openConnection() as HttpURLConnection
-                    connection.connectTimeout = 5000
-                    connection.readTimeout = 5000
-                    connection.requestMethod = "GET"
-
-                    if (connection.responseCode != HttpURLConnection.HTTP_OK) throw Exception()
-
-                    val response = connection.inputStream.bufferedReader().readText()
-                    val jsonData = JSONObject(response).getJSONArray("data")
-                    jsonData
-                } catch (e: Exception) {
-                    // Kalo gagal, return dummy data offline
-                    buildOfflineJsonArray()
-                }
+        return try {
+            withContext(Dispatchers.Main) {
+                progressBar?.visibility = View.VISIBLE
+                recyclerView?.visibility = View.GONE
             }
 
-            if (newsArray.length() == 0) {
+            val newsArray = withContext(Dispatchers.IO) {
+                val connection = url.openConnection() as HttpURLConnection
+                connection.connectTimeout = 5000
+                connection.readTimeout = 5000
+                connection.requestMethod = "GET"
+
+                if (connection.responseCode != HttpURLConnection.HTTP_OK) throw Exception()
+
+                val response = connection.inputStream.bufferedReader().readText()
+                JSONObject(response).getJSONArray("data")
+            }
+
+            withContext(Dispatchers.Main) {
+                if (newsArray.length() > 0) {
+                    recyclerView?.adapter = AdapterRV(newsArray, layout, type, "search")
+                    noResult?.visibility = View.GONE
+                    recyclerView?.visibility = View.VISIBLE
+                } else {
+                    noResult?.visibility = View.VISIBLE
+                    recyclerView?.visibility = View.GONE
+                }
+                progressBar?.visibility = View.GONE
+            }
+            true
+        } catch (e: Exception) {
+            withContext(Dispatchers.Main) {
                 noResult?.visibility = View.VISIBLE
                 progressBar?.visibility = View.GONE
                 recyclerView?.visibility = View.GONE
-            } else {
-                recyclerView?.adapter = AdapterRV(newsArray, layout, type, "home")
-                progressBar?.visibility = View.GONE
-                recyclerView?.visibility = View.VISIBLE
+            }
+            false
+        }.also {
+            withContext(Dispatchers.Main) {
+                view?.findViewById<androidx.swiperefreshlayout.widget.SwipeRefreshLayout>(R.id.home_refresh_layout)?.isRefreshing = false
             }
         }
-        val swipeRefreshLayout = view?.findViewById<androidx.swiperefreshlayout.widget.SwipeRefreshLayout>(R.id.home_refresh_layout)
-        swipeRefreshLayout?.isRefreshing = false
     }
 
     private fun refreshItems(view: View) {
+        CoroutineScope(Dispatchers.IO).launch {
+            fetchItems(view.context, "headline")
+        }
         val chipGroup : ChipGroup = view.findViewById(R.id.chipGroup)
-        val chip = chipGroup.findViewById<Chip>(chipGroup.checkedChipId)
-
-        fetchItems(view.context, "headline")
-        fetchItems(view.context, chip.text.toString())
-    }
-
-    private fun buildOfflineJsonArray(): JSONArray {
-        val currentDate = LocalDate.now()
-        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-        val formattedDate = currentDate.format(formatter)
-
-        return JSONArray().apply {
-            put(
-                JSONObject().apply {
-                    put("title", "You're Offline!")
-                    put("createdAt", formattedDate)
-                    put("image", "kosong")
-                    put("type", "dummy")
+        when (chipGroup.checkedChipId) {
+            R.id.chip_berita -> {
+                CoroutineScope(Dispatchers.IO).launch {
+                    fetchItems(view.context, "berita")
                 }
-            )
+            }
+            R.id.chip_video -> {
+                CoroutineScope(Dispatchers.IO).launch {
+                    fetchItems(view.context, "video")
+                }
+            }
+            R.id.chip_podcast -> {
+                CoroutineScope(Dispatchers.IO).launch {
+                    fetchItems(view.context, "podcast")
+                }
+            }
         }
     }
 

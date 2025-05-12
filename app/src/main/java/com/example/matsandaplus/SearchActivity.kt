@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.widget.ProgressBar
+import android.widget.TextView
 import android.widget.Toolbar
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -42,76 +43,90 @@ class SearchActivity : AppCompatActivity() {
 
         supportActionBar?.title = query
 
-        fetchItems(this, "berita", query)
+        CoroutineScope(Dispatchers.Main).launch {
+            val bTop = fetchItems(this@SearchActivity, "headline", query)
+            val bB = fetchItems(this@SearchActivity, "berita", query)
+            val bV = fetchItems(this@SearchActivity, "video", query)
+            val bP = fetchItems(this@SearchActivity, "podcast", query)
+        }
+
     }
 
-    private fun fetchItems(context: Context, type : String, query: String) {
+    private suspend fun fetchItems(context: Context, type : String, query: String): Boolean {
+        val noResult = when (type) {
+            "headline" -> findViewById<TextView>(R.id.search_top_no_results)
+            "berita" -> findViewById(R.id.search_berita_no_results)
+            "video" -> findViewById(R.id.search_video_no_results)
+            else -> findViewById(R.id.search_podcast_no_results)
+        }
         val recyclerView = when (type) {
-            "berita" -> findViewById<RecyclerView>(R.id.search_berita_rv)
+            "headline" -> findViewById<RecyclerView>(R.id.search_top_rv)
+            "berita" -> findViewById(R.id.search_berita_rv)
             "video" -> findViewById(R.id.search_video_rv)
             else -> findViewById(R.id.search_podcast_rv)
         }
         val progressBar = when (type) {
-            "headline" -> findViewById<ProgressBar>(R.id.headline_progress)
-            else -> findViewById(R.id.media_progress)
+            "headline" -> findViewById<ProgressBar>(R.id.search_top_pb)
+            "berita" -> findViewById(R.id.search_berita_pb)
+            "video" -> findViewById(R.id.search_videos_pb)
+            else -> findViewById(R.id.search_podcasts_pb)
         }
         val url = when (type) {
-            "berita" -> URL("http://tour-occupational.gl.at.ply.gg:32499/api/News")
-            "video" -> URL("http://tour-occupational.gl.at.ply.gg:32499/api/Videos")
-            "podcast" -> URL("http://tour-occupational.gl.at.ply.gg:32499/api/podcasts")
-            else -> null
+            "headline" -> URL("http://tour-occupational.gl.at.ply.gg:32499/api/search?query=${query}")
+            "berita" -> URL("http://tour-occupational.gl.at.ply.gg:32499/api/News?search=${query}")
+            "video" -> URL("http://tour-occupational.gl.at.ply.gg:32499/api/Videos?search=${query}")
+            else -> URL("http://tour-occupational.gl.at.ply.gg:32499/api/podcasts?search=${query}")
         }
         val layout : Int = when (type) {
             "headline" -> R.layout.berita_rv_layout
             else -> R.layout.home_media_rv_layout
         }
-        recyclerView.layoutManager = LinearLayoutManager(this@SearchActivity, LinearLayoutManager.HORIZONTAL, false)
+        recyclerView.layoutManager = when (type) {
+            "headline" -> LinearLayoutManager(this@SearchActivity, LinearLayoutManager.HORIZONTAL, false)
+            else -> LinearLayoutManager(this@SearchActivity, LinearLayoutManager.VERTICAL, false)
+        }
 
-        CoroutineScope(Dispatchers.Main).launch {
-            progressBar?.visibility = View.VISIBLE
-            recyclerView.visibility = View.GONE
-
-            val newsArray : JSONArray = withContext(Dispatchers.IO) {
-                try {
-                    val connection = url?.openConnection() as HttpURLConnection
-                    connection.connectTimeout = 5000
-                    connection.readTimeout = 5000
-                    connection.requestMethod = "GET"
-
-                    if (connection.responseCode != HttpURLConnection.HTTP_OK) throw Exception("no connection")
-                    if (connection.responseCode == HttpURLConnection.HTTP_NOT_FOUND) throw Exception("empty")
-
-                    val response = connection.inputStream.bufferedReader().readText()
-                    val jsonData = JSONObject(response).getJSONArray("data")
-                    jsonData
-                } catch (e: Exception) {
-                    // Kalo gagal, return dummy data offline
-                    buildOfflineJsonArray()
-                }
+        return try {
+            withContext(Dispatchers.Main) {
+                progressBar?.visibility = View.VISIBLE
+                recyclerView.visibility = View.GONE
             }
 
-            recyclerView.adapter = AdapterRV(newsArray, layout, type, "search")
-            progressBar?.visibility = View.GONE
-            recyclerView.visibility = View.VISIBLE
-        }
-        val swipeRefreshLayout = findViewById<androidx.swiperefreshlayout.widget.SwipeRefreshLayout>(R.id.home_refresh_layout)
-        swipeRefreshLayout?.isRefreshing = false
-    }
+            val newsArray = withContext(Dispatchers.IO) {
+                val connection = url.openConnection() as HttpURLConnection
+                connection.connectTimeout = 5000
+                connection.readTimeout = 5000
+                connection.requestMethod = "GET"
 
-    private fun buildOfflineJsonArray(): JSONArray {
-        val currentDate = LocalDate.now()
-        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-        val formattedDate = currentDate.format(formatter)
+                if (connection.responseCode != HttpURLConnection.HTTP_OK) throw Exception()
 
-        return JSONArray().apply {
-            put(
-                JSONObject().apply {
-                    put("title", "You're Offline!")
-                    put("createdAt", formattedDate)
-                    put("image", "kosong")
-                    put("type", "dummy")
+                val response = connection.inputStream.bufferedReader().readText()
+                JSONObject(response).getJSONArray("data")
+            }
+
+            withContext(Dispatchers.Main) {
+                if (newsArray.length() > 0) {
+                    recyclerView.adapter = AdapterRV(newsArray, layout, type, "search")
+                    noResult.visibility = View.GONE
+                    recyclerView.visibility = View.VISIBLE
+                } else {
+                    noResult.visibility = View.VISIBLE
+                    recyclerView.visibility = View.GONE
                 }
-            )
+                progressBar?.visibility = View.GONE
+            }
+            true
+        } catch (e: Exception) {
+            withContext(Dispatchers.Main) {
+                noResult.visibility = View.VISIBLE
+                progressBar?.visibility = View.GONE
+                recyclerView.visibility = View.GONE
+            }
+            false
+        }.also {
+            withContext(Dispatchers.Main) {
+                findViewById<androidx.swiperefreshlayout.widget.SwipeRefreshLayout>(R.id.home_refresh_layout)?.isRefreshing = false
+            }
         }
     }
 }

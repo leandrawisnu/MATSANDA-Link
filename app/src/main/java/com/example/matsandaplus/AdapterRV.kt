@@ -9,6 +9,9 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONObject
 import java.time.LocalDate
@@ -22,135 +25,48 @@ class AdapterRV(private val data : JSONArray, var layout : Int, var typeRV : Str
 
             val tipeItem = item.getString("type")
 
-            when (page) {
-                "home" -> {
-                    when (tipeItem) {
-                        "dummy" -> {
-                            when (tipeRV) {
-                                "headline" -> {
-                                    val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy", Locale("id"))
-                                    val judul = item.getString("title")
+            when (tipeRV) {
+                "headline" -> {
+                    CoroutineScope(Dispatchers.Main).launch {
+                        val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy", Locale("id"))
+                        val judul = item.getString("title")
 
-                                    if(judul.length>55) {
-                                        view.findViewById<TextView>(R.id.judul_headline_TV).text = judul.substring(0, 54) + "..."
-                                    } else {
-                                        view.findViewById<TextView>(R.id.judul_headline_TV).text = judul
-                                    }
-
-                                    view.findViewById<TextView>(R.id.date_headline_TV).text = formatter.format(LocalDate.parse(item.getString("createdAt")))
-                                    val gambar = view.findViewById<ImageView>(R.id.berita_headline_image)
-                                    val gambarLink = item.getString("image")
-
-                                    if (!gambarLink.equals("kosong")) {
-                                        Glide.with(view.context)
-                                            .load(gambarLink)
-                                            .into(gambar)
-                                    }
-                                }
-                                else -> {
-                                    val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy", Locale("id"))
-                                    val judul = item.getString("title")
-                                    val button = view.findViewById<ImageView>(R.id.home_media_rv_play)
-
-                                    button.visibility = View.GONE
-
-                                    if(judul.length>55) {
-                                        view.findViewById<TextView>(R.id.media_rv_judul).text = judul.substring(0, 54) + "..."
-                                    } else {
-                                        view.findViewById<TextView>(R.id.media_rv_judul).text = judul
-                                    }
-
-                                    view.findViewById<TextView>(R.id.media_rv_tanggal).text= formatter.format(LocalDate.parse(item.getString("createdAt")))
-                                    val gambar = view.findViewById<ImageView>(R.id.home_media_rv_image)
-                                    val gambarLink = item.getString("image")
-
-                                    if (!gambarLink.equals("kosong")) {
-                                        Glide.with(view.context)
-                                            .load(gambarLink)
-                                            .into(gambar)
-                                    }
-                                }
-                            }
+                        if(judul.length>55) {
+                            view.findViewById<TextView>(R.id.judul_headline_TV).text = judul.substring(0, 54) + "..."
+                        } else {
+                            view.findViewById<TextView>(R.id.judul_headline_TV).text = judul
                         }
-                        else -> {
-                            when (tipeRV) {
-                                "headline" -> {
-                                    val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy", Locale("id"))
-                                    val judul = item.getString("title")
 
-                                    if(judul.length>55) {
-                                        view.findViewById<TextView>(R.id.judul_headline_TV).text = judul.substring(0, 54) + "..."
-                                    } else {
-                                        view.findViewById<TextView>(R.id.judul_headline_TV).text = judul
-                                    }
+                        view.findViewById<TextView>(R.id.date_headline_TV).text = formatter.format(LocalDate.parse(item.getString("createdAt")))
+                        val gambar = view.findViewById<ImageView>(R.id.berita_headline_image)
+                        val gambarLink = item.getString("image")
 
-                                    view.findViewById<TextView>(R.id.date_headline_TV).text = formatter.format(LocalDate.parse(item.getString("createdAt")))
-                                    val gambar = view.findViewById<ImageView>(R.id.berita_headline_image)
-                                    val gambarLink = item.getString("image")
-
-                                    if(!gambarLink.equals("kosong")) {
-                                        Glide.with(view.context)
-                                            .load(gambarLink)
-                                            .into(gambar)
-                                    }
-                                }
-                                "berita" -> {
-                                    val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy", Locale("id"))
-                                    val judul = item.getString("title")
-
-                                    if(judul.length>55) {
-                                        view.findViewById<TextView>(R.id.media_rv_judul).text = judul.substring(0, 54) + "..."
-                                    } else {
-                                        view.findViewById<TextView>(R.id.media_rv_judul).text = judul
-                                    }
-
-                                    view.findViewById<TextView>(R.id.media_rv_tanggal).text = formatter.format(LocalDate.parse(item.getString("createdAt")))
-                                    val gambar = view.findViewById<ImageView>(R.id.home_media_rv_image)
-                                    val gambarLink = item.getString("image")
-
-                                    if (!gambarLink.equals("kosong")) {
-                                        Glide.with(view.context)
-                                            .load(gambarLink)
-                                            .into(gambar)
-                                    }
-                                }
-                                else -> {
-                                    val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy", Locale("id"))
-                                    val judul = item.getString("title")
-
-                                    if(judul.length>55) {
-                                        view.findViewById<TextView>(R.id.media_rv_judul).text = judul.substring(0, 54) + "..."
-                                    } else {
-                                        view.findViewById<TextView>(R.id.media_rv_judul).text = judul
-                                    }
-
-                                    view.findViewById<TextView>(R.id.media_rv_tanggal).text = formatter.format(LocalDate.parse(item.getString("createdAt")))
-                                    val gambar = view.findViewById<ImageView>(R.id.home_media_rv_image)
-                                    val url = item.getString("link")
-                                    val idVideo = url.substringAfter("youtu.be/").substringBefore("?")
-                                    val gambarLink = "https://img.youtube.com/vi/${idVideo}/sddefault.jpg"
-
-                                    if (!gambarLink.equals("kosong")) {
-                                        Glide.with(view.context)
-                                            .load(gambarLink)
-                                            .into(gambar)
-                                    }
-                                }
-                            }
+                        if (!gambarLink.equals("kosong")) {
+                            Glide.with(view.context)
+                                .load(gambarLink)
+                                .into(gambar)
                         }
                     }
                 }
-                "search" -> {
-                    when (tipeItem) {
-                        "dummy" -> {
+                else -> {
+                    CoroutineScope(Dispatchers.Main).launch {
+                        val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy", Locale("id"))
+                        val judul = item.getString("title")
 
+                        if(judul.length>55) {
+                            view.findViewById<TextView>(R.id.media_rv_judul).text = judul.substring(0, 54) + "..."
+                        } else {
+                            view.findViewById<TextView>(R.id.media_rv_judul).text = judul
                         }
-                        else -> {
-                            when (tipeRV){
-                                "berita" -> {
 
-                                }
-                            }
+                        view.findViewById<TextView>(R.id.media_rv_tanggal).text= formatter.format(LocalDate.parse(item.getString("createdAt")))
+                        val gambar = view.findViewById<ImageView>(R.id.home_media_rv_image)
+                        val gambarLink = item.getString("image")
+
+                        if (!gambarLink.equals("kosong")) {
+                            Glide.with(view.context)
+                                .load(gambarLink)
+                                .into(gambar)
                         }
                     }
                 }
