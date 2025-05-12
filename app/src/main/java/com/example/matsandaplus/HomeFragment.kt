@@ -13,6 +13,7 @@ import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ProgressBar
 import android.widget.SearchView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -112,6 +113,10 @@ class HomeFragment : Fragment() {
     }
 
     private fun fetchItems(context: Context, type : String) {
+        val noResult = when (type) {
+            "headline" -> view?.findViewById<TextView>(R.id.headline_no_results)
+            else -> view?.findViewById(R.id.media_no_results)
+        }
         val recyclerView = when (type) {
             "headline" -> view?.findViewById<RecyclerView>(R.id.headline_rv)
             else -> view?.findViewById(R.id.home_media_rv)
@@ -163,9 +168,15 @@ class HomeFragment : Fragment() {
                 }
             }
 
-            recyclerView?.adapter = AdapterRV(newsArray, layout, type)
-            progressBar?.visibility = View.GONE
-            recyclerView?.visibility = View.VISIBLE
+            if (newsArray.length() == 0) {
+                noResult?.visibility = View.VISIBLE
+                progressBar?.visibility = View.GONE
+                recyclerView?.visibility = View.GONE
+            } else {
+                recyclerView?.adapter = AdapterRV(newsArray, layout, type, "home")
+                progressBar?.visibility = View.GONE
+                recyclerView?.visibility = View.VISIBLE
+            }
         }
         val swipeRefreshLayout = view?.findViewById<androidx.swiperefreshlayout.widget.SwipeRefreshLayout>(R.id.home_refresh_layout)
         swipeRefreshLayout?.isRefreshing = false

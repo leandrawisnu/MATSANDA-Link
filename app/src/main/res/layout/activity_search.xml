@@ -27,6 +27,14 @@
         app:drawableStartCompat="@drawable/berita"
         app:drawableTint="@color/link_green" />
 
+    <ProgressBar
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:visibility="visible"
+        android:indeterminateTint="@color/link_green"
+        android:layout_gravity="center"
+        android:id="@+id/search_berita_pb"/>
+
     <androidx.recyclerview.widget.RecyclerView
         android:layout_marginBottom="10dp"
         android:layout_width="match_parent"
@@ -47,6 +55,14 @@
         app:drawableStartCompat="@drawable/baseline_personal_video_24"
         app:drawableTint="@color/link_green" />
 
+    <ProgressBar
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:visibility="visible"
+        android:indeterminateTint="@color/link_green"
+        android:layout_gravity="center"
+        android:id="@+id/search_videos_pb"/>
+
     <androidx.recyclerview.widget.RecyclerView
         android:layout_marginBottom="10dp"
         android:layout_width="match_parent"
@@ -66,6 +82,14 @@
         android:fontFamily="@font/poppins"
         app:drawableStartCompat="@drawable/podcast"
         app:drawableTint="@color/link_green" />
+
+    <ProgressBar
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:visibility="visible"
+        android:indeterminateTint="@color/link_green"
+        android:layout_gravity="center"
+        android:id="@+id/search_podcasts_pb"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:layout_marginBottom="10dp"
