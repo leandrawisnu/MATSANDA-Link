@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
+import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -73,6 +74,7 @@ class MainActivity : AppCompatActivity() {
                 tab.setIcon(icon)
             }
             tab.tag = name
+            tab.text = name.toString().toLowerCase(Locale.getDefault())
         }.attach()
     }
 }

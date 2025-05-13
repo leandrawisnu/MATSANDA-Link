@@ -1,8 +1,10 @@
 package com.example.matsandaplus
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toolbar
@@ -36,12 +38,11 @@ class SearchActivity : AppCompatActivity() {
         }
 
         val query = intent.getStringExtra("searchQuery").toString()
+        val backButton : ImageView = findViewById(R.id.search_back_button)
 
-        val toolbar = findViewById<androidx.appcompat.widget.Toolbar>(R.id.search_toolbar)
-        setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-
-        supportActionBar?.title = query
+        backButton.setOnClickListener {
+            finish()
+        }
 
         CoroutineScope(Dispatchers.Main).launch {
             val bTop = fetchItems(this@SearchActivity, "headline", query)
@@ -72,10 +73,10 @@ class SearchActivity : AppCompatActivity() {
             else -> findViewById(R.id.search_podcasts_pb)
         }
         val url = when (type) {
-            "headline" -> URL("http://tour-occupational.gl.at.ply.gg:32499/api/search?query=${query}")
-            "berita" -> URL("http://tour-occupational.gl.at.ply.gg:32499/api/News?search=${query}")
-            "video" -> URL("http://tour-occupational.gl.at.ply.gg:32499/api/Videos?search=${query}")
-            else -> URL("http://tour-occupational.gl.at.ply.gg:32499/api/podcasts?search=${query}")
+            "headline" -> URL("${R.string.API_URL}/api/search?query=${query}")
+            "berita" -> URL("${R.string.API_URL}/api/News?search=${query}")
+            "video" -> URL("${R.string.API_URL}/api/Videos?search=${query}")
+            else -> URL("${R.string.API_URL}/api/podcasts?search=${query}")
         }
         val layout : Int = when (type) {
             "headline" -> R.layout.berita_rv_layout

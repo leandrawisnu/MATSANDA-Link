@@ -1,6 +1,7 @@
 package com.example.matsandaplus
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -75,10 +76,22 @@ class AdapterRV(private val data : JSONArray, var layout : Int, var typeRV : Str
             view.setOnClickListener {
                 when (tipeItem) {
                     "news" -> {
-
+                        val detail = Intent(view.context, DetailActivity::class.java)
+                        detail.putExtra("id", item.getInt("id"))
+                        detail.putExtra("type", "berita")
+                        view.context.startActivity(detail)
                     }
-                    "video/podcast" -> {
-
+                    "video" -> {
+                        val detail = Intent(view.context, DetailActivity::class.java)
+                        detail.putExtra("id", item.getInt("id"))
+                        detail.putExtra("type", "video")
+                        view.context.startActivity(detail)
+                    }
+                    "podcast" -> {
+                        val detail = Intent(view.context, DetailActivity::class.java)
+                        detail.putExtra("id", item.getInt("id"))
+                        detail.putExtra("type", "podcast")
+                        view.context.startActivity(detail)
                     }
                 }
             }

@@ -2,6 +2,7 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.MATSANDA" parent="Theme.MaterialComponents.Light.NoActionBar">
         <item name="colorPrimary">@color/link_green</item>
+        <item name="fontFamily">@font/poppins</item>
     </style>
 
     <style name="Theme.MATSANDA" parent="Base.Theme.MATSANDA" />

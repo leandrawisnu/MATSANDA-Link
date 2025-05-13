@@ -8,10 +8,37 @@
     android:layout_height="match_parent"
     tools:context=".SearchActivity">
 
-    <androidx.appcompat.widget.Toolbar
+    <LinearLayout
+        android:paddingEnd="15dp"
+        android:paddingStart="15dp"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:id="@+id/search_toolbar"/>
+        android:layout_height="?actionBarSize"
+        android:orientation="horizontal"
+        tools:ignore="RtlSymmetry">
+
+        <ImageView
+            android:padding="7dp"
+            android:background="@drawable/button_bg"
+            android:id="@+id/search_back_button"
+            android:layout_gravity="center_vertical"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/back_button"
+            android:layout_marginEnd="10dp"/>
+
+        <TextView
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:scrollHorizontally="false"
+            android:textSize="20sp"
+            android:fontFamily="@font/poppins"
+            android:textColor="@color/link_green"
+            android:text="Pencarian:"
+            android:layout_gravity="center_vertical"
+            android:id="@+id/search_indicator"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
 
     <TextView
         android:layout_marginBottom="10dp"
