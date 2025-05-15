@@ -16,7 +16,7 @@
         app:tabSelectedTextAppearance="@style/tabText"
         style="@style/Widget.MaterialComponents.TabLayout"
         android:layout_width="match_parent"
-        android:layout_height="?actionBarSize"
+        android:layout_height="wrap_content"
         android:id="@+id/tpMenu"/>
 
 </LinearLayout>

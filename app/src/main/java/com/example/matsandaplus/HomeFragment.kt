@@ -136,17 +136,19 @@ class HomeFragment : Fragment() {
             else -> view?.findViewById(R.id.media_progress)
         }
         val url = when (type) {
-            "headline" -> URL("${R.string.API_URL}/api/News/Headlines")
-            "berita" -> URL("${R.string.API_URL}/api/News")
-            "video" -> URL("${R.string.API_URL}/api/Videos")
-            else -> URL("${R.string.API_URL}/api/podcasts")
+            "headline" -> URL("http://tour-occupational.gl.at.ply.gg:32499/api/News/Headlines")
+            "berita" -> URL("http://tour-occupational.gl.at.ply.gg:32499/api/News")
+            "video" -> URL("http://tour-occupational.gl.at.ply.gg:32499/api/Videos")
+            else -> URL("http://tour-occupational.gl.at.ply.gg:32499/api/podcasts")
         }
-        recyclerView?.layoutManager = when (type) {
-            "headline" -> object : LinearLayoutManager(view?.context, LinearLayoutManager.HORIZONTAL, false) {
-            }
-            else -> object : LinearLayoutManager(view?.context, LinearLayoutManager.VERTICAL, false) {
-                override fun canScrollVertically(): Boolean {
-                    return false
+        withContext(Dispatchers.Main) {
+            recyclerView?.layoutManager = when (type) {
+                "headline" -> object : LinearLayoutManager(view?.context, LinearLayoutManager.HORIZONTAL, false) {
+                }
+                else -> object : LinearLayoutManager(view?.context, LinearLayoutManager.VERTICAL, false) {
+                    override fun canScrollVertically(): Boolean {
+                        return false
+                    }
                 }
             }
         }

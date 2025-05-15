@@ -40,159 +40,170 @@
             android:layout_height="wrap_content"/>
     </LinearLayout>
 
-    <TextView
-        android:layout_marginBottom="10dp"
-        android:layout_gravity="center_vertical"
-        android:drawablePadding="8dp"
-        android:layout_marginStart="25dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/hasil_teratas"
-        android:textColor="@color/link_green"
-        android:textSize="20sp"
-        android:fontFamily="@font/poppins"
-        app:drawableStartCompat="@drawable/topresults"
-        app:drawableTint="@color/link_green" />
-
-    <ProgressBar
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:visibility="visible"
-        android:indeterminateTint="@color/link_green"
-        android:layout_gravity="center"
-        android:id="@+id/search_top_pb"/>
-
-    <TextView
-        android:id="@+id/search_top_no_results"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textAlignment="center"
-        android:fontFamily="@font/poppins"
-        android:textSize="16dp"
-        android:padding="10dp"
-        android:textColor="@color/link_grey"
-        android:text="@string/no_results"/>
+        android:layout_height="wrap_content">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:layout_marginBottom="10dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/search_top_rv"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-    <TextView
-        android:layout_marginBottom="10dp"
-        android:layout_gravity="center_vertical"
-        android:drawablePadding="8dp"
-        android:layout_marginStart="25dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/berita"
-        android:textColor="@color/link_green"
-        android:textSize="20sp"
-        android:fontFamily="@font/poppins"
-        app:drawableStartCompat="@drawable/berita"
-        app:drawableTint="@color/link_green" />
+            <TextView
+                android:layout_marginBottom="10dp"
+                android:layout_gravity="center_vertical"
+                android:drawablePadding="8dp"
+                android:layout_marginStart="25dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/hasil_teratas"
+                android:textColor="@color/link_green"
+                android:textSize="20sp"
+                android:fontFamily="@font/poppins"
+                app:drawableStartCompat="@drawable/topresults"
+                app:drawableTint="@color/link_green" />
 
-    <ProgressBar
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:visibility="visible"
-        android:indeterminateTint="@color/link_green"
-        android:layout_gravity="center"
-        android:id="@+id/search_berita_pb"/>
+            <ProgressBar
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:visibility="visible"
+                android:indeterminateTint="@color/link_green"
+                android:layout_gravity="center"
+                android:id="@+id/search_top_pb"/>
 
-    <TextView
-        android:id="@+id/search_berita_no_results"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textAlignment="center"
-        android:fontFamily="@font/poppins"
-        android:textSize="16sp"
-        android:padding="10dp"
-        android:textColor="@color/link_grey"
-        android:text="@string/no_results"/>
+            <TextView
+                android:id="@+id/search_top_no_results"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:fontFamily="@font/poppins"
+                android:textSize="16dp"
+                android:padding="10dp"
+                android:textColor="@color/link_grey"
+                android:text="@string/no_results"/>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:layout_marginBottom="10dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/search_berita_rv"/>
+            <androidx.recyclerview.widget.RecyclerView
+                android:layout_marginBottom="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/search_top_rv"/>
 
-    <TextView
-        android:layout_marginBottom="10dp"
-        android:layout_gravity="center_vertical"
-        android:drawablePadding="8dp"
-        android:layout_marginStart="25dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/video"
-        android:textColor="@color/link_green"
-        android:textSize="20sp"
-        android:fontFamily="@font/poppins"
-        app:drawableStartCompat="@drawable/baseline_personal_video_24"
-        app:drawableTint="@color/link_green" />
+            <TextView
+                android:layout_marginBottom="10dp"
+                android:layout_gravity="center_vertical"
+                android:drawablePadding="8dp"
+                android:layout_marginStart="25dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/berita"
+                android:textColor="@color/link_green"
+                android:textSize="20sp"
+                android:fontFamily="@font/poppins"
+                app:drawableStartCompat="@drawable/berita"
+                app:drawableTint="@color/link_green" />
 
-    <ProgressBar
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:visibility="visible"
-        android:indeterminateTint="@color/link_green"
-        android:layout_gravity="center"
-        android:id="@+id/search_videos_pb"/>
+            <ProgressBar
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:visibility="visible"
+                android:indeterminateTint="@color/link_green"
+                android:layout_gravity="center"
+                android:id="@+id/search_berita_pb"/>
 
-    <TextView
-        android:id="@+id/search_video_no_results"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textAlignment="center"
-        android:fontFamily="@font/poppins"
-        android:textSize="16sp"
-        android:padding="10dp"
-        android:textColor="@color/link_grey"
-        android:text="@string/no_results"/>
+            <TextView
+                android:id="@+id/search_berita_no_results"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:fontFamily="@font/poppins"
+                android:textSize="16sp"
+                android:padding="10dp"
+                android:textColor="@color/link_grey"
+                android:text="@string/no_results"/>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:layout_marginBottom="10dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/search_video_rv"/>
+            <androidx.recyclerview.widget.RecyclerView
+                android:layout_marginBottom="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/search_berita_rv"/>
 
-    <TextView
-        android:layout_marginBottom="10dp"
-        android:layout_gravity="center_vertical"
-        android:drawablePadding="8dp"
-        android:layout_marginStart="25dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/podcast"
-        android:textColor="@color/link_green"
-        android:textSize="20sp"
-        android:fontFamily="@font/poppins"
-        app:drawableStartCompat="@drawable/podcast"
-        app:drawableTint="@color/link_green" />
+            <TextView
+                android:layout_marginBottom="10dp"
+                android:layout_gravity="center_vertical"
+                android:drawablePadding="8dp"
+                android:layout_marginStart="25dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/video"
+                android:textColor="@color/link_green"
+                android:textSize="20sp"
+                android:fontFamily="@font/poppins"
+                app:drawableStartCompat="@drawable/baseline_personal_video_24"
+                app:drawableTint="@color/link_green" />
 
-    <ProgressBar
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:visibility="visible"
-        android:indeterminateTint="@color/link_green"
-        android:layout_gravity="center"
-        android:id="@+id/search_podcasts_pb"/>
+            <ProgressBar
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:visibility="visible"
+                android:indeterminateTint="@color/link_green"
+                android:layout_gravity="center"
+                android:id="@+id/search_videos_pb"/>
 
-    <TextView
-        android:id="@+id/search_podcast_no_results"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textAlignment="center"
-        android:fontFamily="@font/poppins"
-        android:textSize="16sp"
-        android:padding="10dp"
-        android:textColor="@color/link_grey"
-        android:text="@string/no_results"/>
+            <TextView
+                android:id="@+id/search_video_no_results"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:fontFamily="@font/poppins"
+                android:textSize="16sp"
+                android:padding="10dp"
+                android:textColor="@color/link_grey"
+                android:text="@string/no_results"/>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:layout_marginBottom="10dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/search_podcast_rv"/>
+            <androidx.recyclerview.widget.RecyclerView
+                android:layout_marginBottom="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/search_video_rv"/>
+
+            <TextView
+                android:layout_marginBottom="10dp"
+                android:layout_gravity="center_vertical"
+                android:drawablePadding="8dp"
+                android:layout_marginStart="25dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/podcast"
+                android:textColor="@color/link_green"
+                android:textSize="20sp"
+                android:fontFamily="@font/poppins"
+                app:drawableStartCompat="@drawable/podcast"
+                app:drawableTint="@color/link_green" />
+
+            <ProgressBar
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:visibility="visible"
+                android:indeterminateTint="@color/link_green"
+                android:layout_gravity="center"
+                android:id="@+id/search_podcasts_pb"/>
+
+            <TextView
+                android:id="@+id/search_podcast_no_results"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:fontFamily="@font/poppins"
+                android:textSize="16sp"
+                android:padding="10dp"
+                android:textColor="@color/link_grey"
+                android:text="@string/no_results"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:layout_marginBottom="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/search_podcast_rv"/>
+        </LinearLayout>
+    </ScrollView>
 </LinearLayout>

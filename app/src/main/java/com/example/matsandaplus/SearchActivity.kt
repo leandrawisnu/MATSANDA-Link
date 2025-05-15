@@ -11,6 +11,7 @@ import android.widget.Toolbar
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -73,10 +74,10 @@ class SearchActivity : AppCompatActivity() {
             else -> findViewById(R.id.search_podcasts_pb)
         }
         val url = when (type) {
-            "headline" -> URL("${R.string.API_URL}/api/search?query=${query}")
-            "berita" -> URL("${R.string.API_URL}/api/News?search=${query}")
-            "video" -> URL("${R.string.API_URL}/api/Videos?search=${query}")
-            else -> URL("${R.string.API_URL}/api/podcasts?search=${query}")
+            "headline" -> URL("http://tour-occupational.gl.at.ply.gg:32499/api/search?query=${query}")
+            "berita" -> URL("http://tour-occupational.gl.at.ply.gg:32499/api/News?search=${query}")
+            "video" -> URL("http://tour-occupational.gl.at.ply.gg:32499/api/Videos?search=${query}")
+            else -> URL("http://tour-occupational.gl.at.ply.gg:32499/api/podcasts?search=${query}")
         }
         val layout : Int = when (type) {
             "headline" -> R.layout.berita_rv_layout

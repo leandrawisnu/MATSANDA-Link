@@ -2,12 +2,14 @@ package com.example.matsandaplus
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.health.connect.datatypes.units.Length
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.view.marginEnd
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import kotlinx.coroutines.CoroutineScope
@@ -22,7 +24,7 @@ import java.util.Locale
 class AdapterRV(private val data : JSONArray, var layout : Int, var typeRV : String,var page: String) : RecyclerView.Adapter<AdapterRV.Holder>(){
     class Holder(private val view: View, ) : RecyclerView.ViewHolder(view.rootView) {
         @SuppressLint("SetTextI18n")
-        fun bind (item: JSONObject, tipeRV: String, page: String) {
+        fun bind (item: JSONObject, tipeRV: String, page: String, position: Int, length: Int) {
 
             val tipeItem = item.getString("type")
 
@@ -46,6 +48,18 @@ class AdapterRV(private val data : JSONArray, var layout : Int, var typeRV : Str
                             Glide.with(view.context)
                                 .load(gambarLink)
                                 .into(gambar)
+                        }
+
+                        if (position == length - 1) {
+                            val layoutParams = itemView.layoutParams as? ViewGroup.MarginLayoutParams
+                            layoutParams?.let {
+                                val marginInDp = 15
+                                val scale = itemView.context.resources.displayMetrics.density
+                                val marginInPx = (marginInDp * scale).toInt()
+
+                                it.marginEnd = marginInPx
+                                itemView.layoutParams = it
+                            }
                         }
                     }
                 }
@@ -111,7 +125,7 @@ class AdapterRV(private val data : JSONArray, var layout : Int, var typeRV : Str
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
         val item = data.getJSONObject(position)
-        holder.bind(item, typeRV, page)
+        holder.bind(item, typeRV, page, position, data.length())
     }
 
     fun getDetails(item : JSONObject) {
