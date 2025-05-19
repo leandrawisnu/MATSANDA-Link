@@ -95,16 +95,10 @@ class AdapterRV(private val data : JSONArray, var layout : Int, var typeRV : Str
                         detail.putExtra("type", "berita")
                         view.context.startActivity(detail)
                     }
-                    "video" -> {
+                    "video/podcast" -> {
                         val detail = Intent(view.context, DetailActivity::class.java)
                         detail.putExtra("id", item.getInt("id"))
                         detail.putExtra("type", "video")
-                        view.context.startActivity(detail)
-                    }
-                    "podcast" -> {
-                        val detail = Intent(view.context, DetailActivity::class.java)
-                        detail.putExtra("id", item.getInt("id"))
-                        detail.putExtra("type", "podcast")
                         view.context.startActivity(detail)
                     }
                 }

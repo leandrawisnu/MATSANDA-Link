@@ -143,10 +143,23 @@
                         android:scaleType="centerCrop"/>
 
                     <WebView
+                        android:id="@+id/detail_video_webview"
+                        android:layout_width="match_parent"
+                        android:layout_height="200dp"
+                        android:layout_marginBottom="15dp"/>
+
+                    <WebView
+                        android:visibility="gone"
                         android:id="@+id/detail_webview"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:minHeight="150dp"/>
+
+                    <androidx.viewpager2.widget.ViewPager2
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:minWidth="150dp"
+                        android:id="@+id/detail_page_vp"/>
                 </LinearLayout>
             </LinearLayout>
         </ScrollView>
