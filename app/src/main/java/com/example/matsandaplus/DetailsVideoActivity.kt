@@ -1,11 +1,8 @@
 package com.example.matsandaplus
 
-import android.annotation.SuppressLint
 import android.os.Bundle
-import android.text.Html
 import android.view.View
 import android.webkit.WebView
-import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
@@ -15,28 +12,30 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
-import kotlin.math.ceil
 
-class DetailActivity : AppCompatActivity() {
+class DetailsVideoActivity : AppCompatActivity() {
     private var type : String = ""
     private var id = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_detail)
+        setContentView(R.layout.activity_details_video)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
@@ -46,36 +45,17 @@ class DetailActivity : AppCompatActivity() {
         this.type = intent.getStringExtra("type").toString()
         this.id = intent.getIntExtra("id", 0)
 
-        CoroutineScope(Dispatchers.Main).launch {
-            findViewById<TextView>(R.id.detail_not_found).visibility = View.GONE
-            findViewById<ImageView>(R.id.detail_back_button).setOnClickListener {
-                finish()
-            }
-        }
-
         CoroutineScope(Dispatchers.IO).launch {
-            fetchItem()
-
-            withContext(Dispatchers.Main) {
-                findViewById<ProgressBar>(R.id.detail_pg).visibility = View.GONE
-            }
-        }
-
-        val refreshLayout : androidx.swiperefreshlayout.widget.SwipeRefreshLayout = findViewById(R.id.detail_refresh_layout)
-        refreshLayout.setOnRefreshListener {
-            CoroutineScope(Dispatchers.IO).launch {
-                fetchItem()
-            }
+            val IntI = fetchItem()
+            val IntL = fetchList()
         }
     }
 
-    @SuppressLint("SetJavaScriptEnabled")
     private suspend fun fetchItem() : Boolean {
         val content : LinearLayout = findViewById(R.id.detail_content)
         val progressBar : ProgressBar = findViewById(R.id.detail_pg)
-        val gambar = findViewById<ImageView>(R.id.detail_image)
+        val webViewVideo : WebView = findViewById(R.id.detail_webview_video)
         val notFound : TextView = findViewById(R.id.detail_not_found)
-        val vp : ViewPager2 = findViewById(R.id.detail_page_vp)
 
         return try {
             withContext(Dispatchers.Main) {
@@ -85,7 +65,7 @@ class DetailActivity : AppCompatActivity() {
             }
 
             val item = withContext(Dispatchers.IO) {
-                val connection = URL("http://tour-occupational.gl.at.ply.gg:32499/api/News/id/${id}").openConnection() as HttpURLConnection
+                val connection = URL("http://tour-occupational.gl.at.ply.gg:32499/api/Videos/id/${this@DetailsVideoActivity.id}").openConnection() as HttpURLConnection
                 connection.connectTimeout = 10000
                 connection.readTimeout = 10000
                 connection.requestMethod = "GET"
@@ -99,42 +79,25 @@ class DetailActivity : AppCompatActivity() {
             withContext(Dispatchers.Main) {
                 val judulText = findViewById<TextView>(R.id.detail_judul)
                 val tanggalText = findViewById<TextView>(R.id.detail_tanggal)
-                val menitText = findViewById<TextView>(R.id.detail_baca)
 
                 val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy", Locale("id"))
 
                 judulText.text = item.getString("title")
                 tanggalText.text = formatter.format(LocalDate.parse(item.getString("createdAt")))
-                estimateReadingTime(item.getString("description")).also { menitText.text = it }
 
-                val adapter = AdapterPage(splitIntoPages(item.getString("description")))
-                vp.adapter = adapter
+                val htmlVideo = """
+                    <html>
+                        <body>
+                            <iframe width="100%" height="100%" src="https://www.youtube.com/embed/${item.getString("link").substringAfter("https://youtu.be/")}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                        </body>
+                    </html>
+                    """.trimIndent()
 
-                val buttonPrev : Button = findViewById(R.id.btnPrev)
-                val buttonNext : Button = findViewById(R.id.btnNext)
-
-                buttonPrev.setOnClickListener {
-                    if (vp.currentItem > 0) {
-                        vp.currentItem = vp.currentItem - 1
-                    }
-                }
-
-                buttonNext.setOnClickListener {
-                    if (vp.currentItem < adapter.itemCount - 1) {
-                        vp.currentItem = vp.currentItem + 1
-                    }
-                }
+                webViewVideo.settings.javaScriptEnabled = true
+                webViewVideo.loadDataWithBaseURL(null, htmlVideo, "text/html", "UTF-8", null)
             }
 
             withContext(Dispatchers.Main) {
-                val gambarLink = item.getString("image")
-
-                if (!gambarLink.equals("kosong")) {
-                    Glide.with(this@DetailActivity)
-                        .load(gambarLink)
-                        .into(gambar)
-                }
-
                 progressBar.visibility = View.GONE
                 content.visibility = View.VISIBLE
             }
@@ -152,27 +115,31 @@ class DetailActivity : AppCompatActivity() {
         }
     }
 
-    private fun estimateReadingTime(html: String): String {
-        val plainText = Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY).toString()
+    private fun fetchList() : Boolean {
+        val rv : RecyclerView = findViewById(R.id.detail_video_rv)
+        val layout = R.layout.home_media_rv_layout
 
-        val words = plainText.trim().split("\\s+".toRegex()).size
-        val minutes = ceil(words / 200.0).toInt() // 200 kata/menit
+        try {
+            CoroutineScope(Dispatchers.IO).launch {
+                val connection = URL("http://tour-occupational.gl.at.ply.gg:32499/api/Videos/except/${id}").openConnection() as HttpURLConnection
+                connection.connectTimeout = 10000
+                connection.readTimeout = 10000
+                connection.requestMethod = "GET"
 
-        return "Bacaan $minutes menit"
-    }
+                if (connection.responseCode != HttpURLConnection.HTTP_OK) throw Exception()
 
-    private fun splitIntoPages(content: String, wordsPerPage: Int = 150): List<String> {
-        val words = content.split(Regex("\\s+"))
-        val pages = mutableListOf<String>()
-        var buffer = StringBuilder()
+                val response = connection.inputStream.bufferedReader().readText()
+                val list = JSONObject(response).getJSONArray("data")
 
-        for ((i, word) in words.withIndex()) {
-            buffer.append(word).append(" ")
-            if ((i + 1) % wordsPerPage == 0 || i == words.size - 1) {
-                pages.add(buffer.toString())
-                buffer = StringBuilder()
+                withContext(Dispatchers.Main) {
+                    rv.layoutManager = LinearLayoutManager(this@DetailsVideoActivity, LinearLayoutManager.VERTICAL, false)
+                    rv.adapter = AdapterRV(list, layout, "video", "detail")
+                }
             }
+            return true
+        } catch (e: Exception) {
+            Toast.makeText(this@DetailsVideoActivity, "Error", Toast.LENGTH_SHORT).show()
+            return false
         }
-        return pages
     }
 }

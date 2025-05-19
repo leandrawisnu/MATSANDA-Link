@@ -5,9 +5,8 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".DetailActivity"
     android:orientation="vertical"
-    tools:ignore="HardcodedText">
+    tools:context=".DetailsVideoActivity">
 
     <LinearLayout
         android:layout_marginTop="15dp"
@@ -125,51 +124,19 @@
                                 android:layout_height="match_parent"
                                 android:layout_weight="1"/>
 
-                            <TextView
-                                android:text="Bacaan X Menit"
-                                android:textColor="@color/link_grey"
-                                android:id="@+id/detail_baca"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"/>
                         </LinearLayout>
                     </LinearLayout>
 
-                    <com.google.android.material.imageview.ShapeableImageView
-                        android:id="@+id/detail_image"
-                        app:shapeAppearanceOverlay="@style/RoundedImageView"
-                        android:layout_marginBottom="15dp"
+                    <WebView
                         android:layout_width="match_parent"
                         android:layout_height="200dp"
-                        android:scaleType="centerCrop"/>
+                        android:layout_marginBottom="10dp"
+                        android:id="@+id/detail_webview_video"/>
 
-                    <androidx.viewpager2.widget.ViewPager2
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/detail_video_rv"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:minWidth="150dp"
-                        android:id="@+id/detail_page_vp"/>
-
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-
-                        <Button
-                            android:backgroundTint="@color/white"
-                            android:textColor="@color/link_green"
-                            android:id="@+id/btnPrev"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Prev" />
-
-                        <Button
-                            android:backgroundTint="@color/white"
-                            android:textColor="@color/link_green"
-                            android:id="@+id/btnNext"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Next"
-                            android:layout_marginStart="16dp"/>
-                    </LinearLayout>
+                        android:layout_height="wrap_content"/>
                 </LinearLayout>
             </LinearLayout>
         </ScrollView>

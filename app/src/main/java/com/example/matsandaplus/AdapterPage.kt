@@ -26,14 +26,23 @@ class AdapterPage(private val pages: List<String>) : RecyclerView.Adapter<Adapte
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val html = """
             <html>
-              <head>
-                <style>
-                  body { font-family: 'sans-serif'; padding: 16px; font-size: 14px; text-align: justify; }
-                </style>
-              </head>
-              <body>${pages[position]}</body>
+                <head>
+                    <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+                    <style type="text/css">
+                        body {
+                        text-align: justify;
+                        padding: 0;
+                        margin: 0;
+                        font-family: 'Poppins', sans-serif;
+                        font-size: 13px;
+                        }
+                    </style>
+                </head>
+                <body>
+                    ${pages[position]}
+                </body>
             </html>
-        """.trimIndent()
+            """.trimIndent()
 
         holder.webView.settings.javaScriptEnabled = false
         holder.webView.loadDataWithBaseURL(null, html, "text/html", "UTF-8", null)
