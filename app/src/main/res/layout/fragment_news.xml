@@ -121,9 +121,25 @@
                         </LinearLayout>
 
                         <androidx.recyclerview.widget.RecyclerView
+                            android:layout_marginBottom="10dp"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:id="@+id/news_headline_rv"/>
+
+                        <TextView
+                            android:layout_marginBottom="10dp"
+                            android:layout_marginStart="20dp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Lebih Banyak"
+                            style="@style/regularText"
+                            android:textSize="16sp"
+                            android:textColor="@color/link_green"/>
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/news_more_rv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"/>
                     </LinearLayout>
                 </androidx.core.widget.NestedScrollView>
             </LinearLayout>

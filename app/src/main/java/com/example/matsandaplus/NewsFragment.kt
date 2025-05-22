@@ -61,14 +61,15 @@ class NewsFragment : Fragment() {
         refresh(view)
     }
 
-    private suspend fun fetchList(view: View, type: String): Boolean {
-        val progress = view.findViewById<ProgressBar>(R.id.news_pg)
-        val notFound = view.findViewById<TextView>(R.id.news_not_found)
-        val content = view.findViewById<LinearLayout>(R.id.news_content)
-        val refreshLayout = view.findViewById<SwipeRefreshLayout>(R.id.news_refresh_layout)
+    private suspend fun fetchList(type: String): Boolean {
+        val progress = view?.findViewById<ProgressBar>(R.id.news_pg)
+        val notFound = view?.findViewById<TextView>(R.id.news_not_found)
+        val content = view?.findViewById<LinearLayout>(R.id.news_content)
+        val refreshLayout = view?.findViewById<SwipeRefreshLayout>(R.id.news_refresh_layout)
 
         val rv = when (type) {
-            "headline" -> view.findViewById<RecyclerView>(R.id.news_headline_rv)
+            "headline" -> view?.findViewById<RecyclerView>(R.id.news_headline_rv)
+            "berita" -> view?.findViewById(R.id.news_more_rv)
             else -> return false
         }
 
@@ -83,14 +84,14 @@ class NewsFragment : Fragment() {
             else -> return false
         }
         val layoutManager = when (type) {
-            "headline" -> LinearLayoutManager(view.context, LinearLayoutManager.HORIZONTAL, false)
-            "berita" -> LinearLayoutManager(view.context, LinearLayoutManager.VERTICAL, false)
+            "headline" -> LinearLayoutManager(view?.context, LinearLayoutManager.HORIZONTAL, false)
+            "berita" -> LinearLayoutManager(view?.context, LinearLayoutManager.VERTICAL, false)
             else -> return false
         }
 
         withContext(Dispatchers.Main) {
-            progress.visibility = View.VISIBLE
-            notFound.visibility = View.GONE
+            progress?.visibility = View.VISIBLE
+            notFound?.visibility = View.GONE
         }
 
         try {
@@ -107,23 +108,23 @@ class NewsFragment : Fragment() {
             }
 
             CoroutineScope(Dispatchers.Main).launch {
-                rv.layoutManager = layoutManager
-                rv.adapter = AdapterRV(newsArray, layout, type, "news")
-                progress.visibility = View.GONE
-                refreshLayout.isRefreshing = false
+                rv?.layoutManager = layoutManager
+                rv?.adapter = AdapterRV(newsArray, layout, type, "news")
+                progress?.visibility = View.GONE
+                refreshLayout?.isRefreshing = false
             }
             return true
         } catch (e: Exception) {
-            notFound.visibility = View.VISIBLE
-            content.visibility = View.GONE
+            notFound?.visibility = View.VISIBLE
+            content?.visibility = View.GONE
         }
         return false
     }
 
     private fun refresh(view: View) {
         CoroutineScope(Dispatchers.IO).launch {
-            fetchList(view, "headline")
-            fetchList(view, "berita")
+            fetchList("headline")
+            fetchList("berita")
         }
     }
 
