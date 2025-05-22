@@ -5,6 +5,19 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
+import android.widget.ProgressBar
+import android.widget.TextView
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.json.JSONObject
+import java.net.HttpURLConnection
+import java.net.URL
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -35,6 +48,83 @@ class NewsFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_news, container, false)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        val refreshLayout = view.findViewById<SwipeRefreshLayout>(R.id.news_refresh_layout)
+        refreshLayout.setOnRefreshListener {
+            refresh(view)
+        }
+
+        refresh(view)
+    }
+
+    private suspend fun fetchList(view: View, type: String): Boolean {
+        val progress = view.findViewById<ProgressBar>(R.id.news_pg)
+        val notFound = view.findViewById<TextView>(R.id.news_not_found)
+        val content = view.findViewById<LinearLayout>(R.id.news_content)
+        val refreshLayout = view.findViewById<SwipeRefreshLayout>(R.id.news_refresh_layout)
+
+        val rv = when (type) {
+            "headline" -> view.findViewById<RecyclerView>(R.id.news_headline_rv)
+            else -> return false
+        }
+
+        val url = when (type) {
+            "headline" -> URL("http://tour-occupational.gl.at.ply.gg:32499/api/News/Headlines")
+            "berita" -> URL("http://tour-occupational.gl.at.ply.gg:32499/api/News")
+            else -> return false
+        }
+        val layout = when (type) {
+            "headline" -> R.layout.berita_rv_layout
+            "berita" -> R.layout.home_media_rv_layout
+            else -> return false
+        }
+        val layoutManager = when (type) {
+            "headline" -> LinearLayoutManager(view.context, LinearLayoutManager.HORIZONTAL, false)
+            "berita" -> LinearLayoutManager(view.context, LinearLayoutManager.VERTICAL, false)
+            else -> return false
+        }
+
+        withContext(Dispatchers.Main) {
+            progress.visibility = View.VISIBLE
+            notFound.visibility = View.GONE
+        }
+
+        try {
+            val newsArray = withContext(Dispatchers.IO) {
+                val connection = url.openConnection() as HttpURLConnection
+                connection.requestMethod = "GET"
+                connection.connectTimeout = 10000
+                connection.readTimeout = 100000
+
+                if (connection.responseCode != HttpURLConnection.HTTP_OK) throw Exception()
+
+                val response = connection.inputStream.bufferedReader().readText()
+                JSONObject(response).getJSONArray("data")
+            }
+
+            CoroutineScope(Dispatchers.Main).launch {
+                rv.layoutManager = layoutManager
+                rv.adapter = AdapterRV(newsArray, layout, type, "news")
+                progress.visibility = View.GONE
+                refreshLayout.isRefreshing = false
+            }
+            return true
+        } catch (e: Exception) {
+            notFound.visibility = View.VISIBLE
+            content.visibility = View.GONE
+        }
+        return false
+    }
+
+    private fun refresh(view: View) {
+        CoroutineScope(Dispatchers.IO).launch {
+            fetchList(view, "headline")
+            fetchList(view, "berita")
+        }
     }
 
     companion object {

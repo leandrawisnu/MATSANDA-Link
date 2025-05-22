@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
@@ -9,136 +9,178 @@
     tools:context=".DetailsVideoActivity">
 
     <LinearLayout
-        android:layout_marginTop="15dp"
-        android:layout_marginBottom="5dp"
-        android:paddingEnd="20dp"
-        android:paddingStart="20dp"
-        android:layout_width="match_parent"
-        android:layout_height="?actionBarSize"
-        android:orientation="horizontal"
-        tools:ignore="RtlSymmetry">
-
-        <ImageView
-            android:contentDescription="BackButton"
-            android:padding="7dp"
-            android:background="@drawable/button_bg"
-            android:id="@+id/detail_back_button"
-            android:layout_gravity="center_vertical"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:src="@drawable/back_button"
-            android:layout_marginEnd="10dp"/>
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:layout_marginEnd="10dp"/>
-
-        <ImageView
-            android:padding="7dp"
-            android:background="@drawable/button_bg"
-            android:id="@+id/detail_save_button"
-            android:layout_gravity="center_vertical"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:src="@drawable/save_button"
-            android:layout_marginEnd="10dp"/>
-
-        <ImageView
-            android:padding="7dp"
-            android:background="@drawable/button_bg"
-            android:id="@+id/detail_share_button"
-            android:layout_gravity="center_vertical"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:src="@drawable/share_button"
-            android:layout_marginEnd="10dp"/>
-    </LinearLayout>
-
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:id="@+id/detail_refresh_layout"
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <ScrollView
+        <LinearLayout
+            android:layout_marginTop="15dp"
+            android:layout_marginBottom="5dp"
+            android:paddingEnd="20dp"
+            android:paddingStart="20dp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="?actionBarSize"
+            android:orientation="horizontal"
+            tools:ignore="RtlSymmetry">
 
-            <LinearLayout
-                android:orientation="vertical"
+            <ImageView
+                android:contentDescription="BackButton"
+                android:padding="7dp"
+                android:background="@drawable/button_bg"
+                android:id="@+id/detail_back_button"
+                android:layout_gravity="center_vertical"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/back_button"
+                android:layout_marginEnd="10dp"/>
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginEnd="10dp"/>
+
+            <ImageView
+                android:padding="7dp"
+                android:background="@drawable/button_bg"
+                android:id="@+id/detail_save_button"
+                android:layout_gravity="center_vertical"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/save_button"
+                android:layout_marginEnd="10dp"/>
+
+            <ImageView
+                android:padding="7dp"
+                android:background="@drawable/button_bg"
+                android:id="@+id/detail_share_button"
+                android:layout_gravity="center_vertical"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/share_button"
+                android:layout_marginEnd="10dp"/>
+        </LinearLayout>
+
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/detail_refresh_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <ProgressBar
-                    android:id="@+id/detail_pg"
-                    android:indeterminateTint="@color/link_green"
-                    android:layout_gravity="center"
-                    android:layout_width="60dp"
-                    android:layout_height="60dp"/>
-
-                <TextView
-                    android:id="@+id/detail_not_found"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="Not Found!"/>
-
                 <LinearLayout
-                    android:layout_marginStart="20dp"
-                    android:layout_marginEnd="20dp"
-                    android:id="@+id/detail_content"
+                    android:orientation="vertical"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical">
+                    android:layout_height="wrap_content">
+
+                    <ProgressBar
+                        android:id="@+id/detail_pg"
+                        android:indeterminateTint="@color/link_green"
+                        android:layout_gravity="center"
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"/>
+
+                    <TextView
+                        android:id="@+id/detail_not_found"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="Not Found!"/>
 
                     <LinearLayout
+                        android:layout_marginStart="20dp"
+                        android:layout_marginEnd="20dp"
+                        android:id="@+id/detail_content"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:orientation="vertical">
 
-                        <TextView
-                            android:text="Judul Artikel, misal dibuat menjadi 2 Baris"
-                            android:id="@+id/detail_judul"
+                        <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:fontFamily="@font/poppins_semibold"
-                            android:textSize="24sp"
-                            android:textColor="@color/link_green"/>
-
-                        <LinearLayout
-                            android:layout_marginBottom="15dp"
-                            android:orientation="horizontal"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content">
+                            android:orientation="vertical">
 
                             <TextView
-                                android:text="Hari, XX Bulan Tahun"
-                                android:textColor="@color/link_grey"
-                                android:id="@+id/detail_tanggal"
+                                android:text="Judul Artikel, misal dibuat menjadi 2 Baris"
+                                android:id="@+id/detail_judul"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/poppins_semibold"
+                                android:textSize="24sp"
+                                android:textColor="@color/link_green"/>
+
+                            <LinearLayout
+                                android:layout_marginBottom="15dp"
+                                android:orientation="horizontal"
                                 android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"/>
+                                android:layout_height="wrap_content">
 
-                            <View
-                                android:layout_width="0dp"
-                                android:layout_height="match_parent"
-                                android:layout_weight="1"/>
-
+                                <TextView
+                                    android:text="Hari, XX Bulan Tahun"
+                                    android:textColor="@color/link_grey"
+                                    android:id="@+id/detail_tanggal"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"/>
+                            </LinearLayout>
                         </LinearLayout>
+
+                        <WebView
+                            android:layout_width="match_parent"
+                            android:layout_height="200dp"
+                            android:layout_marginBottom="10dp"
+                            android:id="@+id/detail_webview_video"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Video lain"
+                            android:textSize="16sp"
+                            android:textColor="@color/link_green"/>
+
+                        <com.google.android.material.chip.ChipGroup
+                            android:id="@+id/chipGroup"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:singleSelection="true"
+                            app:selectionRequired="true">
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chip_video"
+                                style="@style/CustomChoiceChip"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:checked="true"
+                                android:text="@string/video"
+                                android:textColor="@color/chip_text"
+                                app:chipBackgroundColor="@color/chip_bg" />
+
+                            <com.google.android.material.chip.Chip
+                                android:textColor="@color/chip_text"
+                                app:chipBackgroundColor="@color/chip_bg"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:id="@+id/chip_podcast"
+                                style="@style/CustomChoiceChip"
+                                android:text="@string/podcast" />
+                        </com.google.android.material.chip.ChipGroup>
                     </LinearLayout>
 
-                    <WebView
-                        android:layout_width="match_parent"
-                        android:layout_height="200dp"
-                        android:layout_marginBottom="10dp"
-                        android:id="@+id/detail_webview_video"/>
-
                     <androidx.recyclerview.widget.RecyclerView
+                        android:layout_marginStart="5dp"
+                        android:layout_marginEnd="5dp"
                         android:id="@+id/detail_video_rv"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"/>
+
+                    <FrameLayout
+                        android:id="@+id/fullscreen_webview"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
                 </LinearLayout>
-            </LinearLayout>
-        </ScrollView>
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-</LinearLayout>
+            </ScrollView>
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+    </LinearLayout>
+
+</FrameLayout>

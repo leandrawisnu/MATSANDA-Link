@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.view.Gravity
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -115,10 +116,10 @@ class HomeFragment : Fragment() {
         val homeMediaRV : RecyclerView = view.findViewById(R.id.home_media_rv)
         homeMediaRV.isNestedScrollingEnabled = false
 
-        CoroutineScope(Dispatchers.IO).launch {
-            val bH = fetchItems(view.context, "headline")
-            val bB = fetchItems(view.context, "berita")
-        }
+//        CoroutineScope(Dispatchers.IO).launch {
+//            val bH = fetchItems(view.context, "headline")
+//            val bB = fetchItems(view.context, "berita")
+//        }
     }
 
     @SuppressLint("CutPasteId")

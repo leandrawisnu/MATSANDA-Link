@@ -1,8 +1,14 @@
 package com.example.matsandaplus
 
+import android.annotation.SuppressLint
+import android.content.pm.ActivityInfo
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.View
+import android.webkit.WebChromeClient
 import android.webkit.WebView
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
@@ -16,10 +22,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
+import com.google.android.material.chip.ChipGroup
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection
@@ -31,6 +39,8 @@ import java.util.Locale
 class DetailsVideoActivity : AppCompatActivity() {
     private var type : String = ""
     private var id = 0
+    private var customView: View? = null
+    private var customViewCallback: WebChromeClient.CustomViewCallback? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,18 +57,37 @@ class DetailsVideoActivity : AppCompatActivity() {
 
         CoroutineScope(Dispatchers.IO).launch {
             val IntI = fetchItem()
-            val IntL = fetchList()
+            val IntL = fetchList("video")
+        }
+
+        val chipGroup : ChipGroup = findViewById(R.id.chipGroup)
+        chipGroup.setOnCheckedChangeListener { group, checkedId ->
+            when (checkedId) {
+                R.id.chip_video -> {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        fetchList("video")
+                    }
+                }
+                R.id.chip_podcast -> {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        fetchList("podcast")
+                    }
+                }
+            }
         }
     }
 
+    @SuppressLint("SetJavaScriptEnabled")
     private suspend fun fetchItem() : Boolean {
         val content : LinearLayout = findViewById(R.id.detail_content)
         val progressBar : ProgressBar = findViewById(R.id.detail_pg)
         val webViewVideo : WebView = findViewById(R.id.detail_webview_video)
         val notFound : TextView = findViewById(R.id.detail_not_found)
+        val fullscreen : FrameLayout = findViewById(R.id.fullscreen_webview)
 
         return try {
             withContext(Dispatchers.Main) {
+                fullscreen.visibility = View.GONE
                 progressBar.visibility = View.VISIBLE
                 content.visibility = View.GONE
                 notFound.visibility = View.GONE
@@ -87,6 +116,14 @@ class DetailsVideoActivity : AppCompatActivity() {
 
                 val htmlVideo = """
                     <html>
+                        <head>
+                            <style>
+                                body {
+                                margin: 0;
+                                padding: 0;
+                                }
+                            </style>
+                        </head>
                         <body>
                             <iframe width="100%" height="100%" src="https://www.youtube.com/embed/${item.getString("link").substringAfter("https://youtu.be/")}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
                         </body>
@@ -94,6 +131,44 @@ class DetailsVideoActivity : AppCompatActivity() {
                     """.trimIndent()
 
                 webViewVideo.settings.javaScriptEnabled = true
+                webViewVideo.webChromeClient = object : WebChromeClient() {
+                    override fun onShowCustomView(view: View?, callback: CustomViewCallback?) {
+                        if (customView != null) {
+                            callback?.onCustomViewHidden()
+                            return
+                        }
+
+                        customView = view
+                        customViewCallback = callback
+                        fullscreen.visibility = View.VISIBLE
+                        fullscreen.addView(view)
+                        webViewVideo.visibility = View.GONE
+
+                        // Lock landscape
+                        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+
+                        window.decorView.systemUiVisibility =
+                            View.SYSTEM_UI_FLAG_FULLSCREEN or
+                                    View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
+                                    View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                    } 
+
+                    override fun onHideCustomView() {
+                        fullscreen.removeView(customView)
+                        fullscreen.visibility = View.GONE
+
+                        customView = null
+                        customViewCallback?.onCustomViewHidden()
+                        customViewCallback = null
+
+                        webViewVideo.visibility = View.VISIBLE
+
+                        // Unlock orientation
+                        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+                        window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
+                    }
+                }
+
                 webViewVideo.loadDataWithBaseURL(null, htmlVideo, "text/html", "UTF-8", null)
             }
 
@@ -115,26 +190,55 @@ class DetailsVideoActivity : AppCompatActivity() {
         }
     }
 
-    private fun fetchList() : Boolean {
+    private fun fetchList(type : String) : Boolean {
         val rv : RecyclerView = findViewById(R.id.detail_video_rv)
         val layout = R.layout.home_media_rv_layout
 
+        CoroutineScope(Dispatchers.Main).launch {
+            rv.visibility = View.GONE
+        }
+
         try {
-            CoroutineScope(Dispatchers.IO).launch {
-                val connection = URL("http://tour-occupational.gl.at.ply.gg:32499/api/Videos/except/${id}").openConnection() as HttpURLConnection
-                connection.connectTimeout = 10000
-                connection.readTimeout = 10000
-                connection.requestMethod = "GET"
+            when (type) {
+                "video" -> {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val connection = URL("http://tour-occupational.gl.at.ply.gg:32499/api/Videos/except/${id}").openConnection() as HttpURLConnection
+                        connection.connectTimeout = 10000
+                        connection.readTimeout = 10000
+                        connection.requestMethod = "GET"
 
-                if (connection.responseCode != HttpURLConnection.HTTP_OK) throw Exception()
+                        if (connection.responseCode != HttpURLConnection.HTTP_OK) throw Exception()
 
-                val response = connection.inputStream.bufferedReader().readText()
-                val list = JSONObject(response).getJSONArray("data")
+                        val response = connection.inputStream.bufferedReader().readText()
+                        val list = JSONObject(response).getJSONArray("data")
 
-                withContext(Dispatchers.Main) {
-                    rv.layoutManager = LinearLayoutManager(this@DetailsVideoActivity, LinearLayoutManager.VERTICAL, false)
-                    rv.adapter = AdapterRV(list, layout, "video", "detail")
+                        withContext(Dispatchers.Main) {
+                            rv.layoutManager = LinearLayoutManager(this@DetailsVideoActivity, LinearLayoutManager.VERTICAL, false)
+                            rv.adapter = AdapterRV(list, layout, "video", "detail")
+                            rv.visibility = View.VISIBLE
+                        }
+                    }
                 }
+                "podcast" -> {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val connection = URL("http://tour-occupational.gl.at.ply.gg:32499/api/podcasts/except/${id}").openConnection() as HttpURLConnection
+                        connection.connectTimeout = 10000
+                        connection.readTimeout = 10000
+                        connection.requestMethod = "GET"
+
+                        if (connection.responseCode != HttpURLConnection.HTTP_OK) throw Exception()
+
+                        val response = connection.inputStream.bufferedReader().readText()
+                        val list = JSONObject(response).getJSONArray("data")
+
+                        withContext(Dispatchers.Main) {
+                            rv.layoutManager = LinearLayoutManager(this@DetailsVideoActivity, LinearLayoutManager.VERTICAL, false)
+                            rv.adapter = AdapterRV(list, layout, "video", "detail")
+                            rv.visibility = View.VISIBLE
+                        }
+                    }
+                }
+                else -> return false
             }
             return true
         } catch (e: Exception) {
@@ -142,4 +246,11 @@ class DetailsVideoActivity : AppCompatActivity() {
             return false
         }
     }
+
+    override fun onBackPressed() {
+        val webViewVideo = findViewById<WebView>(R.id.detail_webview_video)
+        webViewVideo.loadUrl("about:blank")
+        super.onBackPressed()
+    }
+
 }

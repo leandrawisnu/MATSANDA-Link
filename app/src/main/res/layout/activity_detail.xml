@@ -141,36 +141,73 @@
                         android:layout_width="match_parent"
                         android:layout_height="200dp"
                         android:scaleType="centerCrop"/>
+                </LinearLayout>
 
-                    <androidx.viewpager2.widget.ViewPager2
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:minWidth="150dp"
-                        android:id="@+id/detail_page_vp"/>
+                <androidx.viewpager2.widget.ViewPager2
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minWidth="150dp"
+                    android:id="@+id/detail_page_vp"/>
 
-                    <LinearLayout
+                <LinearLayout
+                    android:layout_marginBottom="15dp"
+                    android:id="@+id/detail_content_bottom"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginEnd="20dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/detail_page_count"
+                        android:layout_gravity="center_vertical"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal">
+                        android:fontFamily="@font/poppins"
+                        android:textSize="16sp"
+                        android:textColor="@color/link_green"
+                        android:text="1-3"/>
 
-                        <Button
-                            android:backgroundTint="@color/white"
-                            android:textColor="@color/link_green"
-                            android:id="@+id/btnPrev"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Prev" />
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"/>
 
-                        <Button
-                            android:backgroundTint="@color/white"
-                            android:textColor="@color/link_green"
-                            android:id="@+id/btnNext"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Next"
-                            android:layout_marginStart="16dp"/>
-                    </LinearLayout>
+                    <ImageButton
+                        android:src="@drawable/round_arrow_back_ios_new_24"
+                        android:background="@drawable/button_bg"
+                        android:textColor="@color/link_green"
+                        android:id="@+id/btnPrev"
+                        android:padding="7dp"
+                        android:layout_width="50dp"
+                        android:layout_height="35dp"
+                        android:layout_marginEnd="10dp"
+                        android:text="Prev" />
+
+                    <ImageButton
+                        android:src="@drawable/round_arrow_forward_ios_24"
+                        android:background="@drawable/button_bg"
+                        android:textColor="@color/link_green"
+                        android:id="@+id/btnNext"
+                        android:padding="7dp"
+                        android:layout_width="50dp"
+                        android:layout_height="35dp"
+                        android:text="Next" />
                 </LinearLayout>
+                
+                <TextView
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginStart="20dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="More News"
+                    android:textColor="@color/link_green"
+                    android:textSize="16sp"/>
+                
+                <androidx.recyclerview.widget.RecyclerView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/detail_more_rv"/>
             </LinearLayout>
         </ScrollView>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

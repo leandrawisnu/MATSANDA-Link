@@ -6,6 +6,7 @@ import android.text.Html
 import android.view.View
 import android.webkit.WebView
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
@@ -15,6 +16,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
 import kotlinx.coroutines.CoroutineScope
@@ -55,6 +58,7 @@ class DetailActivity : AppCompatActivity() {
 
         CoroutineScope(Dispatchers.IO).launch {
             fetchItem()
+            fetchList()
 
             withContext(Dispatchers.Main) {
                 findViewById<ProgressBar>(R.id.detail_pg).visibility = View.GONE
@@ -72,15 +76,18 @@ class DetailActivity : AppCompatActivity() {
     @SuppressLint("SetJavaScriptEnabled")
     private suspend fun fetchItem() : Boolean {
         val content : LinearLayout = findViewById(R.id.detail_content)
+        val bottom : LinearLayout = findViewById(R.id.detail_content_bottom)
         val progressBar : ProgressBar = findViewById(R.id.detail_pg)
         val gambar = findViewById<ImageView>(R.id.detail_image)
         val notFound : TextView = findViewById(R.id.detail_not_found)
         val vp : ViewPager2 = findViewById(R.id.detail_page_vp)
+        val pageCount : TextView = findViewById(R.id.detail_page_count)
 
         return try {
             withContext(Dispatchers.Main) {
                 progressBar.visibility = View.VISIBLE
                 content.visibility = View.GONE
+                bottom.visibility = View.GONE
                 notFound.visibility = View.GONE
             }
 
@@ -107,11 +114,15 @@ class DetailActivity : AppCompatActivity() {
                 tanggalText.text = formatter.format(LocalDate.parse(item.getString("createdAt")))
                 estimateReadingTime(item.getString("description")).also { menitText.text = it }
 
-                val adapter = AdapterPage(splitIntoPages(item.getString("description")))
-                vp.adapter = adapter
+                val list = paginateByMaxTwoParagraphs( item.getString("description"))
 
-                val buttonPrev : Button = findViewById(R.id.btnPrev)
-                val buttonNext : Button = findViewById(R.id.btnNext)
+                val adapter = AdapterPage(list)
+                vp.adapter = adapter
+                vp.isUserInputEnabled = false
+
+                val buttonPrev : ImageButton = findViewById(R.id.btnPrev)
+                val buttonNext : ImageButton = findViewById(R.id.btnNext)
+                pageCount.text = "1 - ${list.size}"
 
                 buttonPrev.setOnClickListener {
                     if (vp.currentItem > 0) {
@@ -137,6 +148,7 @@ class DetailActivity : AppCompatActivity() {
 
                 progressBar.visibility = View.GONE
                 content.visibility = View.VISIBLE
+                bottom.visibility = View.VISIBLE
             }
             true
         } catch (e: Exception) {
@@ -152,6 +164,34 @@ class DetailActivity : AppCompatActivity() {
         }
     }
 
+    private fun fetchList() {
+        CoroutineScope(Dispatchers.Main).launch {
+            val rv : RecyclerView = findViewById(R.id.detail_more_rv)
+            val layout = R.layout.berita_rv_layout
+
+            try {
+                val list = withContext(Dispatchers.IO) {
+                    val connection = URL("http://tour-occupational.gl.at.ply.gg:32499/api/News/except/${id}?take=5").openConnection() as HttpURLConnection
+                    connection.requestMethod = "GET"
+                    connection.connectTimeout = 10000
+                    connection.readTimeout = 10000
+
+                    if (connection.responseCode != HttpURLConnection.HTTP_OK) throw Exception()
+
+                    val response = connection.inputStream.bufferedReader().readText()
+                    JSONObject(response).getJSONArray("data")
+                }
+
+                withContext(Dispatchers.Main) {
+                    rv.layoutManager = LinearLayoutManager(this@DetailActivity, LinearLayoutManager.HORIZONTAL, false)
+                    rv.adapter = AdapterRV(list, layout, "headline", "detail")
+                }
+            } catch (_: Exception) {
+
+            }
+        }
+    }
+
     private fun estimateReadingTime(html: String): String {
         val plainText = Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY).toString()
 
@@ -161,18 +201,22 @@ class DetailActivity : AppCompatActivity() {
         return "Bacaan $minutes menit"
     }
 
-    private fun splitIntoPages(content: String, wordsPerPage: Int = 150): List<String> {
-        val words = content.split(Regex("\\s+"))
-        val pages = mutableListOf<String>()
-        var buffer = StringBuilder()
+    private fun paginateByMaxTwoParagraphs(htmlContent: String): List<String> {
+        val paragraphRegex = Regex("<p[^>]*>.*?</p>", RegexOption.DOT_MATCHES_ALL)
+        val paragraphs = paragraphRegex.findAll(htmlContent).map { it.value.trim() }.toList()
 
-        for ((i, word) in words.withIndex()) {
-            buffer.append(word).append(" ")
-            if ((i + 1) % wordsPerPage == 0 || i == words.size - 1) {
-                pages.add(buffer.toString())
-                buffer = StringBuilder()
+        val pages = mutableListOf<String>()
+
+        for (i in paragraphs.indices step 2) {
+            val pageContent = buildString {
+                append(paragraphs[i])
+                if (i + 1 < paragraphs.size) {
+                    append("<br>").append(paragraphs[i + 1])
+                }
             }
+            pages.add(pageContent)
         }
+
         return pages
     }
 }

@@ -93,6 +93,7 @@
                 </LinearLayout>
 
                 <LinearLayout
+                    android:layout_marginBottom="10dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:minHeight="150dp"
@@ -113,7 +114,7 @@
                         android:layout_height="wrap_content"
                         android:textAlignment="center"
                         android:fontFamily="@font/poppins"
-                        android:textSize="16dp"
+                        android:textSize="16sp"
                         android:textColor="@color/link_grey"
                         android:text="@string/no_results"
                         android:visibility="gone"/>

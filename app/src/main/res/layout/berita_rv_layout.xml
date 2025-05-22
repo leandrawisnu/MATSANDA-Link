@@ -5,8 +5,7 @@
     android:layout_width="300dp"
     android:layout_height="wrap_content"
     android:padding="15dp"
-    android:layout_marginStart="8dp"
-    android:layout_marginEnd="8dp"
+    android:layout_marginStart="15dp"
     android:background="@drawable/headline_bg">
 
     <com.google.android.material.imageview.ShapeableImageView
@@ -20,12 +19,14 @@
         app:shapeAppearanceOverlay="@style/RoundedImageView"/>
 
     <TextView
+        android:maxLines="2"
+        android:ellipsize="end"
         android:id="@+id/judul_headline_TV"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="You're Offline!"
         android:textColor="@color/black"
-        android:textSize="16dp"
+        android:textSize="16sp"
         android:fontFamily="@font/poppins"
         android:paddingBottom="5dp"/>
 
@@ -36,13 +37,13 @@
         android:text="Senin, 21 April 2025"
         android:layout_marginBottom="5dp"
         android:fontFamily="@font/poppins"
-        android:textSize="14dp"
+        android:textSize="14sp"
         android:textColor="@color/link_grey"/>
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="14dp"
+        android:textSize="14sp"
         android:fontFamily="@font/poppins"
         android:text="@string/baca"
         android:textColor="@color/black"/>
