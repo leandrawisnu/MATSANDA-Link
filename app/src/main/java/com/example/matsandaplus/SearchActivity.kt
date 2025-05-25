@@ -38,12 +38,14 @@ class SearchActivity : AppCompatActivity() {
             insets
         }
 
+        val searchIndicator = findViewById<TextView>(R.id.search_indicator)
         val query = intent.getStringExtra("searchQuery").toString()
         val backButton : ImageView = findViewById(R.id.search_back_button)
 
         backButton.setOnClickListener {
             finish()
         }
+        searchIndicator.text = "Pencarian: ${query}"
 
         CoroutineScope(Dispatchers.Main).launch {
             val bTop = fetchItems(this@SearchActivity, "headline", query)

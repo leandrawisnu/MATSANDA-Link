@@ -1,6 +1,8 @@
 package com.example.matsandaplus
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.text.Html
 import android.view.View
@@ -16,6 +18,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
@@ -33,9 +36,6 @@ import java.util.Locale
 import kotlin.math.ceil
 
 class DetailActivity : AppCompatActivity() {
-    private var type : String = ""
-    private var id = 0
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -46,19 +46,33 @@ class DetailActivity : AppCompatActivity() {
             insets
         }
 
-        this.type = intent.getStringExtra("type").toString()
-        this.id = intent.getIntExtra("id", 0)
+        val type = intent.getStringExtra("type").toString()
+        val id = intent.getIntExtra("id", 0)
 
-        CoroutineScope(Dispatchers.Main).launch {
-            findViewById<TextView>(R.id.detail_not_found).visibility = View.GONE
-            findViewById<ImageView>(R.id.detail_back_button).setOnClickListener {
-                finish()
+        findViewById<TextView>(R.id.detail_not_found).visibility = View.GONE
+        findViewById<ImageView>(R.id.detail_back_button).setOnClickListener {
+            finish()
+        }
+
+        val saveButton = findViewById<ImageView>(R.id.detail_save_button)
+
+        saveButton.apply {
+            isSelected = isArticleSaved(this@DetailActivity, id)
+            setOnClickListener {
+                val selected = !isSelected
+                isSelected = selected
+
+                if (selected) {
+                    saveArticle(this@DetailActivity, id)
+                } else {
+                    unsaveArticle(this@DetailActivity, id)
+                }
             }
         }
 
-        CoroutineScope(Dispatchers.IO).launch {
-            fetchItem()
-            fetchList()
+        lifecycleScope.launch {
+            fetchItem(id)
+            fetchList(id)
 
             withContext(Dispatchers.Main) {
                 findViewById<ProgressBar>(R.id.detail_pg).visibility = View.GONE
@@ -67,14 +81,33 @@ class DetailActivity : AppCompatActivity() {
 
         val refreshLayout : androidx.swiperefreshlayout.widget.SwipeRefreshLayout = findViewById(R.id.detail_refresh_layout)
         refreshLayout.setOnRefreshListener {
-            CoroutineScope(Dispatchers.IO).launch {
-                fetchItem()
+            lifecycleScope.launch {
+                fetchItem(id)
             }
         }
     }
 
+    fun isArticleSaved(context: Context, newsId: Int): Boolean {
+        val prefs = context.getSharedPreferences("saved_articles", Context.MODE_PRIVATE)
+        return prefs.getStringSet("ids", mutableSetOf())?.contains(newsId.toString()) == true
+    }
+
+    fun saveArticle(context: Context, newsId: Int) {
+        val prefs = context.getSharedPreferences("saved_articles", Context.MODE_PRIVATE)
+        val saved = prefs.getStringSet("ids", mutableSetOf())?.toMutableSet() ?: mutableSetOf()
+        saved.add(newsId.toString())
+        prefs.edit().putStringSet("ids", saved.toSet()).apply()
+    }
+
+    fun unsaveArticle(context: Context, newsId: Int) {
+        val prefs = context.getSharedPreferences("saved_articles", Context.MODE_PRIVATE)
+        val saved = prefs.getStringSet("ids", mutableSetOf())?.toMutableSet() ?: mutableSetOf()
+        saved.remove(newsId.toString())
+        prefs.edit().putStringSet("ids", saved.toSet()).apply()
+    }
+
     @SuppressLint("SetJavaScriptEnabled")
-    private suspend fun fetchItem() : Boolean {
+    private suspend fun fetchItem(id: Int) : Boolean {
         val content : LinearLayout = findViewById(R.id.detail_content)
         val bottom : LinearLayout = findViewById(R.id.detail_content_bottom)
         val progressBar : ProgressBar = findViewById(R.id.detail_pg)
@@ -107,12 +140,23 @@ class DetailActivity : AppCompatActivity() {
                 val judulText = findViewById<TextView>(R.id.detail_judul)
                 val tanggalText = findViewById<TextView>(R.id.detail_tanggal)
                 val menitText = findViewById<TextView>(R.id.detail_baca)
+                val shareButton = findViewById<ImageView>(R.id.detail_share_button)
 
                 val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy", Locale("id"))
 
                 judulText.text = item.getString("title")
                 tanggalText.text = formatter.format(LocalDate.parse(item.getString("createdAt")))
                 estimateReadingTime(item.getString("description")).also { menitText.text = it }
+                shareButton.setOnClickListener {
+                    val shareIntent = Intent().apply {
+                        action = Intent.ACTION_SEND
+                        putExtra(Intent.EXTRA_TEXT, item.getString("link"))
+                        type = "text/plain"
+                    }
+
+                    startActivity(Intent.createChooser(shareIntent, "Share via"))
+
+                }
 
                 val list = paginateByMaxTwoParagraphs( item.getString("description"))
 
@@ -164,7 +208,7 @@ class DetailActivity : AppCompatActivity() {
         }
     }
 
-    private fun fetchList() {
+    private fun fetchList(id: Int) {
         CoroutineScope(Dispatchers.Main).launch {
             val rv : RecyclerView = findViewById(R.id.detail_more_rv)
             val layout = R.layout.berita_rv_layout

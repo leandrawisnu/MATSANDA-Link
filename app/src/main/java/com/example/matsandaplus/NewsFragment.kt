@@ -1,6 +1,9 @@
 package com.example.matsandaplus
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -49,30 +52,69 @@ class NewsFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
+
         return inflater.inflate(R.layout.fragment_news, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val refreshLayout = view.findViewById<SwipeRefreshLayout>(R.id.news_refresh_layout)
-        refreshLayout.setOnRefreshListener {
-            refresh(view)
+        viewLifecycleOwner.lifecycleScope.launch {
+            val refreshLayout = view.findViewById<SwipeRefreshLayout>(R.id.news_refresh_layout)
+            refreshLayout.setOnRefreshListener {
+                refresh(view)
+            }
         }
 
-        applySummary(view)
-        refresh(view)
+        viewLifecycleOwner.lifecycleScope.launch {
+            val headlinesInt = fetchList(view, "headline")
+            val listInt = fetchList(view, "berita")
+
+            val aiButton = view.findViewById<TextView>(R.id.news_summary)
+            aiButton.text = "Dapatkan Ringkasan"
+
+            if (aiButton.text.toString() == "Dapatkan Ringkasan") {
+                aiButton.setOnClickListener {
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        applySummary(view)
+                    }
+                }
+            }
+        }
+
     }
 
-    private fun applySummary(view: View) {
+    private suspend fun applySummary(view: View): Int {
         val summaryTextView = view.findViewById<TextView>(R.id.news_summary)
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            try {
-                summaryTextView.text = getSummary()
-            } catch (e: Exception) {
-                summaryTextView.text = "Gagal ambil ringkasan!"
+        val dots = arrayOf("", ".", "..", "...")
+        var index = 0
+
+        val handler = Handler(Looper.getMainLooper())
+        val runnable = object : Runnable {
+            override fun run() {
+                summaryTextView.text = "Menghasilkan Ringkasan${dots[index]}"
+                index = (index + 1) % dots.size
+                handler.postDelayed(this, 500)
             }
+        }
+        handler.post(runnable)
+
+        return try {
+            val summary = getSummary()
+            handler.removeCallbacks(runnable)
+            summaryTextView.text = summary
+            summaryTextView.setOnClickListener {}
+            1
+        } catch (e: Exception) {
+            handler.removeCallbacks(runnable)
+            summaryTextView.text = "Gagal ambil ringkasan, coba lagi"
+            summaryTextView.setOnClickListener {
+                viewLifecycleOwner.lifecycleScope.launch {
+                    applySummary(view)
+                }
+            }
+            0
         }
     }
 
@@ -81,8 +123,8 @@ class NewsFragment : Fragment() {
 
         connection.apply {
             requestMethod = "GET"
-            connectTimeout = 30000
-            readTimeout = 30000
+            connectTimeout = 60000
+            readTimeout = 60000
         }
 
         if (connection.responseCode != HttpURLConnection.HTTP_OK) {
@@ -100,12 +142,12 @@ class NewsFragment : Fragment() {
 
         val rv = when (type) {
             "headline" -> view.findViewById<RecyclerView>(R.id.news_headline_rv)
-            "berita" -> view.findViewById(R.id.news_more_rv)
+            "berita" -> view.findViewById<RecyclerView>(R.id.news_more_rv)
             else -> return false
         }
 
         val url = when (type) {
-            "headline" -> URL("http://tour-occupational.gl.at.ply.gg:32499/api/News/Headlines")
+            "headline" -> URL("http://tour-occupational.gl.at.ply.gg:32499/api/News/headlines")
             "berita" -> URL("http://tour-occupational.gl.at.ply.gg:32499/api/News")
             else -> return false
         }
@@ -122,46 +164,48 @@ class NewsFragment : Fragment() {
 
         withContext(Dispatchers.Main) {
             notFound?.visibility = View.GONE
-            content?.visibility = View.GONE
             refreshLayout?.isRefreshing = true
         }
 
-        try {
+        return try {
             val newsArray = withContext(Dispatchers.IO) {
                 val connection = url.openConnection() as HttpURLConnection
                 connection.requestMethod = "GET"
                 connection.connectTimeout = 10000
                 connection.readTimeout = 100000
 
-                if (connection.responseCode != HttpURLConnection.HTTP_OK) throw Exception()
+                if (connection.responseCode != HttpURLConnection.HTTP_OK) throw Exception("HTTP error code ${connection.responseCode}")
 
                 val response = connection.inputStream.bufferedReader().readText()
                 JSONObject(response).getJSONArray("data")
             }
 
-            CoroutineScope(Dispatchers.Main).launch {
-                rv?.layoutManager = layoutManager
-                rv?.adapter = AdapterRV(newsArray, layout, type, "news")
+            withContext(Dispatchers.Main) {
+                rv.layoutManager = layoutManager
+                rv.adapter = AdapterRV(newsArray, layout, type, "news")
 
-                when (type) {
-                    "berita" -> rv?.isNestedScrollingEnabled = false
+                if (type == "berita") {
+                    rv.isNestedScrollingEnabled = false
                 }
 
                 refreshLayout?.isRefreshing = false
                 content?.visibility = View.VISIBLE
             }
-            return true
+            true
         } catch (e: Exception) {
-            notFound?.visibility = View.VISIBLE
-            content?.visibility = View.GONE
+            withContext(Dispatchers.Main) {
+                refreshLayout?.isRefreshing = false
+                notFound?.visibility = View.VISIBLE
+            }
+            false
         }
-        return false
     }
 
+
     private fun refresh(view: View) {
-        CoroutineScope(Dispatchers.Main).launch {
-            fetchList(view,"headline")
-            fetchList(view,"berita")
+        viewLifecycleOwner.lifecycleScope.launch {
+            val headlineSuccess = fetchList(view,"headline")
+            val listSuccess = fetchList(view,"berita")
         }
     }
 

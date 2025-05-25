@@ -5,10 +5,12 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.Gravity
+import android.view.KeyEvent
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
@@ -88,6 +90,7 @@ class HomeFragment : Fragment() {
         })
 
         val refreshLayout : androidx.swiperefreshlayout.widget.SwipeRefreshLayout = view.findViewById(R.id.home_refresh_layout)
+
         refreshLayout.setOnRefreshListener {
             refreshItems(view)
         }
@@ -116,10 +119,10 @@ class HomeFragment : Fragment() {
         val homeMediaRV : RecyclerView = view.findViewById(R.id.home_media_rv)
         homeMediaRV.isNestedScrollingEnabled = false
 
-//        CoroutineScope(Dispatchers.IO).launch {
-//            val bH = fetchItems(view.context, "headline")
-//            val bB = fetchItems(view.context, "berita")
-//        }
+        viewLifecycleOwner.lifecycleScope.launch {
+            val bH = fetchItems(view.context, "headline")
+            val bB = fetchItems(view.context, "berita")
+        }
     }
 
     @SuppressLint("CutPasteId")
@@ -166,8 +169,8 @@ class HomeFragment : Fragment() {
 
             val newsArray = withContext(Dispatchers.IO) {
                 val connection = url.openConnection() as HttpURLConnection
-                connection.connectTimeout = 5000
-                connection.readTimeout = 5000
+                connection.connectTimeout = 10000
+                connection.readTimeout = 10000
                 connection.requestMethod = "GET"
 
                 if (connection.responseCode != HttpURLConnection.HTTP_OK) throw Exception()

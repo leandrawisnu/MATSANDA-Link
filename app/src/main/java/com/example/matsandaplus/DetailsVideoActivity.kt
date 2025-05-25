@@ -1,6 +1,8 @@
 package com.example.matsandaplus
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.os.Handler
@@ -37,8 +39,6 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 class DetailsVideoActivity : AppCompatActivity() {
-    private var type : String = ""
-    private var id = 0
     private var customView: View? = null
     private var customViewCallback: WebChromeClient.CustomViewCallback? = null
 
@@ -52,12 +52,33 @@ class DetailsVideoActivity : AppCompatActivity() {
             insets
         }
 
-        this.type = intent.getStringExtra("type").toString()
-        this.id = intent.getIntExtra("id", 0)
+        val type = intent.getStringExtra("type").toString()
+        val id = intent.getIntExtra("id", 0)
+
+        findViewById<TextView>(R.id.detail_not_found).visibility = View.GONE
+        findViewById<ImageView>(R.id.detail_back_button).setOnClickListener {
+            finish()
+        }
+
+        val saveButton = findViewById<ImageView>(R.id.detail_save_button)
+
+        saveButton.apply {
+            isSelected = isArticleSaved(this@DetailsVideoActivity, id)
+            setOnClickListener {
+                val selected = !isSelected
+                isSelected = selected
+
+                if (selected) {
+                    saveArticle(this@DetailsVideoActivity, id)
+                } else {
+                    unsaveArticle(this@DetailsVideoActivity, id)
+                }
+            }
+        }
 
         CoroutineScope(Dispatchers.IO).launch {
-            val IntI = fetchItem()
-            val IntL = fetchList("video")
+            val IntI = fetchItem(id)
+            val IntL = fetchList("video", id)
         }
 
         val chipGroup : ChipGroup = findViewById(R.id.chipGroup)
@@ -65,20 +86,39 @@ class DetailsVideoActivity : AppCompatActivity() {
             when (checkedId) {
                 R.id.chip_video -> {
                     CoroutineScope(Dispatchers.IO).launch {
-                        fetchList("video")
+                        fetchList("video", id)
                     }
                 }
                 R.id.chip_podcast -> {
                     CoroutineScope(Dispatchers.IO).launch {
-                        fetchList("podcast")
+                        fetchList("podcast", id)
                     }
                 }
             }
         }
     }
 
+    fun isArticleSaved(context: Context, newsId: Int): Boolean {
+        val prefs = context.getSharedPreferences("saved_videos", Context.MODE_PRIVATE)
+        return prefs.getStringSet("ids", mutableSetOf())?.contains(newsId.toString()) == true
+    }
+
+    fun saveArticle(context: Context, newsId: Int) {
+        val prefs = context.getSharedPreferences("saved_videos", Context.MODE_PRIVATE)
+        val saved = prefs.getStringSet("ids", mutableSetOf())?.toMutableSet() ?: mutableSetOf()
+        saved.add(newsId.toString())
+        prefs.edit().putStringSet("ids", saved.toSet()).apply()
+    }
+
+    fun unsaveArticle(context: Context, newsId: Int) {
+        val prefs = context.getSharedPreferences("saved_videos", Context.MODE_PRIVATE)
+        val saved = prefs.getStringSet("ids", mutableSetOf())?.toMutableSet() ?: mutableSetOf()
+        saved.remove(newsId.toString())
+        prefs.edit().putStringSet("ids", saved.toSet()).apply()
+    }
+
     @SuppressLint("SetJavaScriptEnabled")
-    private suspend fun fetchItem() : Boolean {
+    private suspend fun fetchItem(id: Int) : Boolean {
         val content : LinearLayout = findViewById(R.id.detail_content)
         val progressBar : ProgressBar = findViewById(R.id.detail_pg)
         val webViewVideo : WebView = findViewById(R.id.detail_webview_video)
@@ -94,7 +134,7 @@ class DetailsVideoActivity : AppCompatActivity() {
             }
 
             val item = withContext(Dispatchers.IO) {
-                val connection = URL("http://tour-occupational.gl.at.ply.gg:32499/api/Videos/id/${this@DetailsVideoActivity.id}").openConnection() as HttpURLConnection
+                val connection = URL("http://tour-occupational.gl.at.ply.gg:32499/api/Videos/id/${id}").openConnection() as HttpURLConnection
                 connection.connectTimeout = 10000
                 connection.readTimeout = 10000
                 connection.requestMethod = "GET"
@@ -108,11 +148,24 @@ class DetailsVideoActivity : AppCompatActivity() {
             withContext(Dispatchers.Main) {
                 val judulText = findViewById<TextView>(R.id.detail_judul)
                 val tanggalText = findViewById<TextView>(R.id.detail_tanggal)
+                val shareButton = findViewById<ImageView>(R.id.detail_share_button)
 
                 val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy", Locale("id"))
 
                 judulText.text = item.getString("title")
                 tanggalText.text = formatter.format(LocalDate.parse(item.getString("createdAt")))
+                shareButton.setOnClickListener {
+                    shareButton.setOnClickListener {
+                        val shareIntent = Intent().apply {
+                            action = Intent.ACTION_SEND
+                            putExtra(Intent.EXTRA_TEXT, item.getString("link"))
+                            type = "text/plain"
+                        }
+
+                        startActivity(Intent.createChooser(shareIntent, "Share via"))
+
+                    }
+                }
 
                 val htmlVideo = """
                     <html>
@@ -190,7 +243,7 @@ class DetailsVideoActivity : AppCompatActivity() {
         }
     }
 
-    private fun fetchList(type : String) : Boolean {
+    private fun fetchList(type : String, id: Int) : Boolean {
         val rv : RecyclerView = findViewById(R.id.detail_video_rv)
         val layout = R.layout.home_media_rv_layout
 

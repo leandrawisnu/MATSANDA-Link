@@ -19,25 +19,12 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <LinearLayout
-                android:orientation="vertical"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <ProgressBar
-                    android:id="@+id/news_pg"
-                    android:indeterminateTint="@color/link_green"
-                    android:layout_gravity="center"
-                    android:layout_width="60dp"
-                    android:layout_height="60dp"/>
-
-                <TextView
-                    android:id="@+id/news_not_found"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="Not Found!"/>
-            </LinearLayout>
+            <TextView
+                android:id="@+id/news_not_found"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="Not Found!"/>
 
             <LinearLayout
                 android:id="@+id/news_content"
@@ -96,6 +83,7 @@
                                 android:layout_height="wrap_content">
 
                                 <TextView
+                                    android:layout_marginEnd="3dp"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     style="@style/regularText"
@@ -103,10 +91,10 @@
                                     android:textColor="@color/link_grey"/>
 
                                 <ImageView
-                                    android:layout_gravity="center_vertical"
+                                    android:src="@drawable/youtube_logo"
                                     android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:src="@drawable/deepseek_text"/>
+                                    android:layout_marginTop="3dp"
+                                    android:layout_height="wrap_content"/>
                             </LinearLayout>
                         </LinearLayout>
 

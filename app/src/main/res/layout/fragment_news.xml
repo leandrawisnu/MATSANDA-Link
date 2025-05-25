@@ -19,34 +19,41 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
+            <TextView
+                android:id="@+id/news_not_found"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="Not Found!"/>
+
             <LinearLayout
-                android:layout_marginTop="25dp"
+                android:id="@+id/news_content"
                 android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <ImageView
+                <LinearLayout
                     android:layout_marginStart="20dp"
-                    android:layout_marginBottom="10dp"
-                    android:layout_gravity="center_vertical"
-                    android:layout_width="wrap_content"
+                    android:layout_marginEnd="20dp"
+                    android:layout_marginTop="25dp"
+                    android:layout_marginBottom="5dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/linkberita"
-                    android:layout_marginEnd="8dp"/>
+                    android:orientation="horizontal">
 
-                <TextView
-                    android:id="@+id/news_not_found"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="Not Found!"/>
+                    <ImageView
+                        android:layout_gravity="center_vertical"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/linkberita"
+                        android:layout_marginEnd="8dp"/>
+                </LinearLayout>
 
                 <androidx.core.widget.NestedScrollView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
                     <LinearLayout
-                        android:id="@+id/news_content"
                         android:orientation="vertical"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content">
@@ -60,15 +67,15 @@
                             android:orientation="vertical">
 
                             <TextView
+                                android:text="Dapatkan Ringkasan"
+                                android:drawablePadding="10dp"
                                 android:layout_marginBottom="5dp"
-                                android:justificationMode="inter_word"
-                                android:text="@string/template_ringkasan"
                                 android:id="@+id/news_summary"
-                                android:layout_width="match_parent"
+                                android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 style="@style/regularText"
                                 android:textSize="14sp"
-                                android:textColor="@color/black"/>
+                                android:textColor="@drawable/text_button"/>
 
                             <LinearLayout
                                 android:orientation="horizontal"
@@ -79,14 +86,23 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     style="@style/regularText"
-                                    android:text="Powered by AI "
+                                    android:text="Powered by "
                                     android:textColor="@color/link_grey"/>
 
                                 <ImageView
-                                    android:layout_gravity="center_vertical"
+                                    android:layout_marginEnd="2dp"
+                                    android:layout_marginTop="3dp"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:src="@drawable/baseline_assistant_24"/>
+                                    android:src="@drawable/gemma_text"/>
+
+                                <ImageView
+                                    android:layout_marginTop="1dp"
+                                    android:src="@drawable/gemma"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content">
+
+                                </ImageView>
                             </LinearLayout>
                         </LinearLayout>
 

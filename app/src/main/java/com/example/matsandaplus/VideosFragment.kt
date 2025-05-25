@@ -1,6 +1,7 @@
 package com.example.matsandaplus
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -62,73 +63,73 @@ class VideosFragment : Fragment() {
 
     private suspend fun fetchList(type: String): Boolean {
         val notFound = view?.findViewById<TextView>(R.id.news_not_found)
-        val content = view?.findViewById<LinearLayout>(R.id.news_content)
         val refreshLayout = view?.findViewById<SwipeRefreshLayout>(R.id.news_refresh_layout)
 
         val rv = when (type) {
             "headline" -> view?.findViewById<RecyclerView>(R.id.news_headline_rv)
-            "video" -> view?.findViewById(R.id.news_more_rv)
+            "video/podcast" -> view?.findViewById<RecyclerView>(R.id.news_more_rv)
             else -> return false
         }
 
         val url = when (type) {
             "headline" -> URL("http://tour-occupational.gl.at.ply.gg:32499/api/Videos?take=5")
-            "video" -> URL("http://tour-occupational.gl.at.ply.gg:32499/api/Videos")
+            "video/podcast" -> URL("http://tour-occupational.gl.at.ply.gg:32499/api/Videos")
             else -> return false
         }
         val layout = when (type) {
             "headline" -> R.layout.berita_rv_layout
-            "video" -> R.layout.home_media_rv_layout
+            "video/podcast" -> R.layout.home_media_rv_layout
             else -> return false
         }
         val layoutManager = when (type) {
             "headline" -> LinearLayoutManager(view?.context, LinearLayoutManager.HORIZONTAL, false)
-            "video" -> LinearLayoutManager(view?.context, LinearLayoutManager.VERTICAL, false)
+            "video/podcast" -> LinearLayoutManager(view?.context, LinearLayoutManager.VERTICAL, false)
             else -> return false
         }
 
         withContext(Dispatchers.Main) {
             notFound?.visibility = View.GONE
-            content?.visibility = View.GONE
             refreshLayout?.isRefreshing = true
         }
 
-        try {
+        return try {
             val newsArray = withContext(Dispatchers.IO) {
                 val connection = url.openConnection() as HttpURLConnection
                 connection.requestMethod = "GET"
                 connection.connectTimeout = 10000
                 connection.readTimeout = 100000
 
-                if (connection.responseCode != HttpURLConnection.HTTP_OK) throw Exception()
+                if (connection.responseCode != HttpURLConnection.HTTP_OK) throw Exception("HTTP error code ${connection.responseCode}")
 
                 val response = connection.inputStream.bufferedReader().readText()
                 JSONObject(response).getJSONArray("data")
             }
 
-            CoroutineScope(Dispatchers.Main).launch {
+            withContext(Dispatchers.Main) {
                 rv?.layoutManager = layoutManager
                 rv?.adapter = AdapterRV(newsArray, layout, type, "news")
 
-                when (type) {
-                    "video" -> rv?.isNestedScrollingEnabled = false
+                if (type == "video/podcast") {
+                    rv?.isNestedScrollingEnabled = false
                 }
 
                 refreshLayout?.isRefreshing = false
-                content?.visibility = View.VISIBLE
             }
-            return true
+            true
         } catch (e: Exception) {
-            notFound?.visibility = View.VISIBLE
-            content?.visibility = View.GONE
+            withContext(Dispatchers.Main) {
+                refreshLayout?.isRefreshing = false
+                notFound?.visibility = View.VISIBLE
+            }
+            false
         }
-        return false
     }
+
 
     private fun refresh(view: View) {
         CoroutineScope(Dispatchers.Main).launch {
             fetchList("headline")
-            fetchList("berita")
+            fetchList("video/podcast")
         }
     }
 
