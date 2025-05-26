@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.CoroutineScope
@@ -47,11 +48,11 @@ class SearchActivity : AppCompatActivity() {
         }
         searchIndicator.text = "Pencarian: ${query}"
 
-        CoroutineScope(Dispatchers.Main).launch {
-            val bTop = fetchItems(this@SearchActivity, "headline", query)
-            val bB = fetchItems(this@SearchActivity, "berita", query)
-            val bV = fetchItems(this@SearchActivity, "video", query)
-            val bP = fetchItems(this@SearchActivity, "podcast", query)
+        lifecycleScope.launch {
+            fetchItems(this@SearchActivity, "headline", query)
+            fetchItems(this@SearchActivity, "berita", query)
+            fetchItems(this@SearchActivity, "video", query)
+            fetchItems(this@SearchActivity, "podcast", query)
         }
 
     }
@@ -98,8 +99,8 @@ class SearchActivity : AppCompatActivity() {
 
             val newsArray = withContext(Dispatchers.IO) {
                 val connection = url.openConnection() as HttpURLConnection
-                connection.connectTimeout = 5000
-                connection.readTimeout = 5000
+                connection.connectTimeout = 10000
+                connection.readTimeout = 10000
                 connection.requestMethod = "GET"
 
                 if (connection.responseCode != HttpURLConnection.HTTP_OK) throw Exception()

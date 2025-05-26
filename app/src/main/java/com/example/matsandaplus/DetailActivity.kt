@@ -4,10 +4,14 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.text.Editable
 import android.text.Html
 import android.view.View
 import android.webkit.WebView
 import android.widget.Button
+import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -141,6 +145,8 @@ class DetailActivity : AppCompatActivity() {
                 val tanggalText = findViewById<TextView>(R.id.detail_tanggal)
                 val menitText = findViewById<TextView>(R.id.detail_baca)
                 val shareButton = findViewById<ImageView>(R.id.detail_share_button)
+                val tanyaButton = findViewById<TextView>(R.id.detail_tanya_button)
+                val tanyaEdit = findViewById<TextView>(R.id.detail_tanya_edit)
 
                 val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy", Locale("id"))
 
@@ -156,6 +162,9 @@ class DetailActivity : AppCompatActivity() {
 
                     startActivity(Intent.createChooser(shareIntent, "Share via"))
 
+                }
+                tanyaButton.setOnClickListener {
+                    askGemma(id, tanyaEdit.text.toString())
                 }
 
                 val list = paginateByMaxTwoParagraphs( item.getString("description"))
@@ -205,6 +214,60 @@ class DetailActivity : AppCompatActivity() {
             CoroutineScope(Dispatchers.Main).launch {
                 findViewById<androidx.swiperefreshlayout.widget.SwipeRefreshLayout>(R.id.detail_refresh_layout).isRefreshing = false
             }
+        }
+    }
+
+    private fun askGemma(id: Int, prompt: String) {
+        val jawabText = findViewById<TextView>(R.id.detail_tanya_jawab)
+        val jawabEdit = findViewById<EditText>(R.id.detail_tanya_edit)
+        val data = JSONObject()
+        data.apply {
+            put("id", id)
+            put("prompt", prompt)
+        }
+
+        if (!jawabEdit.text.isNullOrEmpty()) {
+            val dots = arrayOf("", ".", "..", "...")
+            var index = 0
+
+            val handler = Handler(Looper.getMainLooper())
+            val runnable = object : Runnable {
+                override fun run() {
+                    jawabText.text = "Menghasilkan Jawaban${dots[index]}"
+                    index = (index + 1) % dots.size
+                    handler.postDelayed(this, 500)
+                }
+            }
+            handler.post(runnable)
+
+            try {
+                CoroutineScope(Dispatchers.IO).launch {
+                    val connection = URL("http://tour-occupational.gl.at.ply.gg:32499/api/gemma").openConnection() as HttpURLConnection
+                    connection.apply {
+                        requestMethod = "POST"
+                        setRequestProperty("Content-Type", "application/json")
+                        outputStream.write(data.toString().toByteArray())
+                    }
+
+                    if (connection.responseCode != HttpURLConnection.HTTP_OK) throw Exception()
+
+                    val response = JSONObject(connection.inputStream.bufferedReader().readText())
+
+                    withContext(Dispatchers.Main) {
+                        handler.removeCallbacks(runnable)
+                        jawabText.text = Html.fromHtml(response.getString("data").toString(), Html.FROM_HTML_MODE_COMPACT)
+                        findViewById<TextView>(R.id.detail_tanya_button).setOnClickListener {
+                            askGemma(id, prompt)
+                        }
+                    }
+                }
+            } catch (_: Exception) {
+                handler.removeCallbacks(runnable)
+                jawabText.text = "Gagal ambil respon AI, coba lagi"
+            }
+        } else {
+            jawabEdit.error = "Pertanyaan Kosong"
+            return
         }
     }
 

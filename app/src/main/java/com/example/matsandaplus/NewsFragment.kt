@@ -71,9 +71,9 @@ class NewsFragment : Fragment() {
             val listInt = fetchList(view, "berita")
 
             val aiButton = view.findViewById<TextView>(R.id.news_summary)
-            aiButton.text = "Dapatkan Ringkasan"
+            aiButton.text = "Dapatkan Ringkasan Headline"
 
-            if (aiButton.text.toString() == "Dapatkan Ringkasan") {
+            if (aiButton.text.toString() == "Dapatkan Ringkasan Headline") {
                 aiButton.setOnClickListener {
                     viewLifecycleOwner.lifecycleScope.launch {
                         applySummary(view)

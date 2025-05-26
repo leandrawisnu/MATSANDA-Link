@@ -72,8 +72,8 @@ class VideosFragment : Fragment() {
         }
 
         val url = when (type) {
-            "headline" -> URL("http://tour-occupational.gl.at.ply.gg:32499/api/Videos?take=5")
-            "video/podcast" -> URL("http://tour-occupational.gl.at.ply.gg:32499/api/Videos")
+            "headline" -> URL("http://tour-occupational.gl.at.ply.gg:32499/api/Videos/all?take=5")
+            "video/podcast" -> URL("http://tour-occupational.gl.at.ply.gg:32499/api/Videos/all")
             else -> return false
         }
         val layout = when (type) {

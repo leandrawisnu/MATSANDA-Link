@@ -100,21 +100,21 @@ class DetailsVideoActivity : AppCompatActivity() {
 
     fun isArticleSaved(context: Context, newsId: Int): Boolean {
         val prefs = context.getSharedPreferences("saved_videos", Context.MODE_PRIVATE)
-        return prefs.getStringSet("ids", mutableSetOf())?.contains(newsId.toString()) == true
+        return prefs.getStringSet("videoIds", mutableSetOf())?.contains(newsId.toString()) == true
     }
 
     fun saveArticle(context: Context, newsId: Int) {
         val prefs = context.getSharedPreferences("saved_videos", Context.MODE_PRIVATE)
-        val saved = prefs.getStringSet("ids", mutableSetOf())?.toMutableSet() ?: mutableSetOf()
+        val saved = prefs.getStringSet("videoIds", mutableSetOf())?.toMutableSet() ?: mutableSetOf()
         saved.add(newsId.toString())
-        prefs.edit().putStringSet("ids", saved.toSet()).apply()
+        prefs.edit().putStringSet("videoIds", saved.toSet()).apply()
     }
 
     fun unsaveArticle(context: Context, newsId: Int) {
         val prefs = context.getSharedPreferences("saved_videos", Context.MODE_PRIVATE)
-        val saved = prefs.getStringSet("ids", mutableSetOf())?.toMutableSet() ?: mutableSetOf()
+        val saved = prefs.getStringSet("videoIds", mutableSetOf())?.toMutableSet() ?: mutableSetOf()
         saved.remove(newsId.toString())
-        prefs.edit().putStringSet("ids", saved.toSet()).apply()
+        prefs.edit().putStringSet("videoIds", saved.toSet()).apply()
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -249,6 +249,7 @@ class DetailsVideoActivity : AppCompatActivity() {
 
         CoroutineScope(Dispatchers.Main).launch {
             rv.visibility = View.GONE
+            rv.isNestedScrollingEnabled = false
         }
 
         try {

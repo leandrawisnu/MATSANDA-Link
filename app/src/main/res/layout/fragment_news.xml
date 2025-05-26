@@ -67,7 +67,42 @@
                             android:orientation="vertical">
 
                             <TextView
-                                android:text="Dapatkan Ringkasan"
+                                android:text="@string/template_ringkasan_berita"
+                                android:drawablePadding="10dp"
+                                android:layout_marginBottom="10dp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                style="@style/regularText"
+                                android:textSize="14sp"
+                                android:textColor="@color/link_green"/>
+
+                            <TextView
+                                android:textSize="16sp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                style="@style/regularText"
+                                android:text="Headline"
+                                android:textColor="@color/link_green"/>
+                        </LinearLayout>
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:layout_marginBottom="10dp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/news_headline_rv"/>
+
+                        <LinearLayout
+                            android:padding="15dp"
+                            android:background="@drawable/headline_bg"
+                            android:layout_marginBottom="10dp"
+                            android:layout_marginStart="15dp"
+                            android:layout_marginEnd="15dp"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:text="Dapatkan Ringkasan Headline"
                                 android:drawablePadding="10dp"
                                 android:layout_marginBottom="5dp"
                                 android:id="@+id/news_summary"
@@ -101,16 +136,9 @@
                                     android:src="@drawable/gemma"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content">
-
                                 </ImageView>
                             </LinearLayout>
                         </LinearLayout>
-
-                        <androidx.recyclerview.widget.RecyclerView
-                            android:layout_marginBottom="10dp"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:id="@+id/news_headline_rv"/>
 
                         <TextView
                             android:layout_marginBottom="10dp"

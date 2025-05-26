@@ -66,7 +66,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <ScrollView
+            <androidx.core.widget.NestedScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
@@ -172,6 +172,7 @@
                         </LinearLayout>
 
                         <androidx.recyclerview.widget.RecyclerView
+                            android:nestedScrollingEnabled="false"
                             android:layout_marginStart="5dp"
                             android:layout_marginEnd="5dp"
                             android:id="@+id/detail_video_rv"
@@ -179,7 +180,7 @@
                             android:layout_height="wrap_content"/>
                     </LinearLayout>
                 </FrameLayout>
-            </ScrollView>
+            </androidx.core.widget.NestedScrollView>
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
     </LinearLayout>
 

@@ -41,6 +41,8 @@ class SavedFragment : Fragment() {
     private var param1: String? = null
     private var param2: String? = null
 
+    private var currentView: View? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -59,6 +61,7 @@ class SavedFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        this.currentView = view
 
         val refreshLayout = view.findViewById<SwipeRefreshLayout>(R.id.saved_refresh_layout)
         refreshLayout.setOnRefreshListener {
@@ -66,6 +69,14 @@ class SavedFragment : Fragment() {
         }
 
         refresh(view)
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        currentView?.let {
+            refresh(it)
+        }
     }
 
     private fun reverseJSONArray(jsonArray: JSONArray): JSONArray {
@@ -86,9 +97,13 @@ class SavedFragment : Fragment() {
     }
 
 
-    private fun count(view: View, prefs: String): MutableSet<String> {
-        return view.context.getSharedPreferences(prefs, Context.MODE_PRIVATE)
-            .getStringSet("ids", emptySet())?.toMutableSet() ?: mutableSetOf()
+    private fun count(view: View, prefs: String, type: String): MutableSet<String> {
+        return when (type) {
+            "berita" -> view.context.getSharedPreferences(prefs, Context.MODE_PRIVATE)
+                .getStringSet("ids", emptySet())?.toMutableSet() ?: mutableSetOf()
+            else -> view.context.getSharedPreferences(prefs, Context.MODE_PRIVATE)
+                .getStringSet("videoIds", emptySet())?.toMutableSet() ?: mutableSetOf()
+        }
     }
 
     private suspend fun getList(view: View, type: String) {
@@ -103,9 +118,9 @@ class SavedFragment : Fragment() {
             else -> null
         }
 
-        val newsIds = count(view, prefs.toString())
+        val newsIds = count(view, prefs.toString(), type)
         val newsArray = withContext(Dispatchers.IO) {
-            createNewsArray(view, type, newsIds)
+            createNewsArray(type, newsIds)
         }
 
         withContext(Dispatchers.Main) {
@@ -115,7 +130,7 @@ class SavedFragment : Fragment() {
         }
     }
 
-    private suspend fun createNewsArray(view: View, type: String, newsIds: MutableSet<String>): JSONArray {
+    private suspend fun createNewsArray(type: String, newsIds: MutableSet<String>): JSONArray {
         val newsArray = JSONArray()
 
         val deferredList = newsIds.map { id ->
@@ -179,18 +194,18 @@ class SavedFragment : Fragment() {
 
             val newsKosong = view.findViewById<TextView>(R.id.saved_berita_kosong)
             val videoKosong = view.findViewById<TextView>(R.id.saved_video_kosong)
-            val articleCount = count(view, "saved_articles").size
-            val videoCount = count(view, "saved_videos").size
-            val articlesCount = count(view, "saved_articles").size + count(view, "saved_videos").size
+            val articleCount = count(view, "saved_articles", "berita").size
+            val videoCount = count(view, "saved_videos", "video").size
+            val totalCount = articleCount + videoCount
             val articlesCountTextView = view.findViewById<TextView>(R.id.saved_count)
 
-            if (articlesCount == 0 && videoCount == 0) {
+            if (totalCount == 0 && videoCount == 0) {
                 articlesCountTextView.text = "Anda belum menyimpan konten apapun"
                 newsKosong.visibility = View.VISIBLE
                 videoKosong.visibility = View.VISIBLE
             } else {
-                val totalCount = articlesCount + videoCount
-                articlesCountTextView.text = "$totalCount Konten Tersimpan"
+                val totalCount = articleCount + videoCount
+                articlesCountTextView.text = "${articleCount} artikel tersimpan dan ${videoCount} video tersimpan"
                 newsKosong.visibility = if (articleCount == 0) View.VISIBLE else View.GONE
                 videoKosong.visibility = if (videoCount == 0) View.VISIBLE else View.GONE
             }
