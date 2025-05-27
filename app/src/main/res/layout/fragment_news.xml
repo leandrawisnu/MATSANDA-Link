@@ -102,7 +102,7 @@
                             android:orientation="vertical">
 
                             <TextView
-                                android:text="Dapatkan Ringkasan Headline"
+                                android:text="Ringkasan AI (experimental)"
                                 android:drawablePadding="10dp"
                                 android:layout_marginBottom="5dp"
                                 android:id="@+id/news_summary"

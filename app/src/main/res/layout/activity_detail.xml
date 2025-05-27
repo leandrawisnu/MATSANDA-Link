@@ -212,7 +212,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         style="@style/regularText"
-                        android:text="Tanya AI tentang artikel ini"/>
+                        android:text="Tanya AI (experimental)"/>
 
                     <EditText
                         android:id="@+id/detail_tanya_edit"

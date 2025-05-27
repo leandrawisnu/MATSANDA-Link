@@ -255,9 +255,10 @@ class DetailActivity : AppCompatActivity() {
 
                     withContext(Dispatchers.Main) {
                         handler.removeCallbacks(runnable)
+                        jawabText.text = ""
                         jawabText.text = Html.fromHtml(response.getString("data").toString(), Html.FROM_HTML_MODE_COMPACT)
                         findViewById<TextView>(R.id.detail_tanya_button).setOnClickListener {
-                            askGemma(id, prompt)
+                            askGemma(id, jawabEdit.text.toString())
                         }
                     }
                 }
